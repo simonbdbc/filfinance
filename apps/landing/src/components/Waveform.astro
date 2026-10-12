@@ -1,0 +1,12 @@
+---
+// Onde décorative déterministe : aucun état de lecture ni durée fictive.
+const { compact = false } = Astro.props;
+const count = compact ? 65 : 109;
+const bars = Array.from({ length: count }, (_, index) => {
+  const envelope = 0.3 + 0.7 * Math.pow(Math.sin(index * 0.19), 2);
+  return 8 + Math.round(envelope * (12 + 38 * Math.abs(Math.sin(index * 1.73))));
+});
+---
+<svg class="waveform" viewBox={`0 0 ${count * 5} 72`} preserveAspectRatio="none" aria-hidden="true" focusable="false">
+  {bars.map((height, index) => <path d={`M${index * 5 + 2} ${(72 - height) / 2}v${height}`} />)}
+</svg>

@@ -1,0 +1,35 @@
+{
+  "name": "@filfinance/landing",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=24.13.1",
+    "npm": ">=11.8.0 <12"
+  },
+  "scripts": {
+    "dev": "npm run prepare:assets && ASTRO_TELEMETRY_DISABLED=1 astro dev",
+    "prepare:assets": "node scripts/prepare-assets.mjs",
+    "build": "npm run prepare:assets && ASTRO_TELEMETRY_DISABLED=1 astro build",
+    "preview": "ASTRO_TELEMETRY_DISABLED=1 astro preview",
+    "typecheck": "ASTRO_TELEMETRY_DISABLED=1 astro check",
+    "validate": "node scripts/validate-production-build.mjs",
+    "check": "npm run typecheck && npm test && npm run build && npm run test:legal && npm run validate",
+    "lighthouse:mobile": "lhci autorun --config=.lighthouserc.browser-qa.cjs",
+    "lighthouse:desktop": "lhci autorun --config=.lighthouserc.desktop.cjs",
+    "lighthouse:mobile:dark": "lhci autorun --config=.lighthouserc.mobile-dark.cjs",
+    "lighthouse:desktop:dark": "lhci autorun --config=.lighthouserc.desktop-dark.cjs",
+    "lighthouse:ci": "npm run lighthouse:mobile && npm run lighthouse:desktop && npm run lighthouse:mobile:dark && npm run lighthouse:desktop:dark",
+    "test": "node --test scripts/*.test.mjs",
+    "test:legal": "node --test scripts/legal-build.cases.mjs"
+  },
+  "devDependencies": {
+    "@astrojs/check": "^0.9.9",
+    "@astrojs/sitemap": "^3.7.3",
+    "@lhci/cli": "^0.15.1",
+    "astro": "^7.2.8",
+    "linkedom": "^0.18.13",
+    "sharp": "^0.35.5",
+    "typescript": "^6.0.3"
+  }
+}

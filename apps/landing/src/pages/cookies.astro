@@ -1,0 +1,24 @@
+---
+import LegalLayout from "../layouts/LegalLayout.astro";
+import { legalConfig as legal, legalPages } from "../config/legal.config";
+---
+<LegalLayout page={legalPages[3]}>
+  <section><h2>Un usage technique des stockages</h2>
+    <p>Fil Finance utilise des cookies de session et des stockages locaux pour assurer l’authentification et conserver vos réglages. Aucun outil de publicité ou de mesure d’audience facultative n’est intégré par défaut dans le site public ou l’application.</p>
+    <p>Le site public et l’application ont des origines distinctes : leurs préférences locales ne sont pas automatiquement partagées. Le site public n’a pas besoin de votre session pour afficher ces documents.</p>
+  </section>
+  <section><h2>Sur le site public</h2>
+    <p>La préférence <code>filfinance.landing.theme</code> est conservée dans le stockage local du navigateur après votre choix de thème clair ou sombre. Elle ne contient pas d’identifiant de compte et reste enregistrée jusqu’à sa modification ou à l’effacement du stockage du site.</p>
+    <p>Sans JavaScript ou si la lecture du stockage est refusée, le site public fonctionne en clair. Un refus d’enregistrement n’empêche pas de changer le thème pour la visite en cours.</p>
+  </section>
+  <section><h2>Dans l’application</h2><ul>
+    <li><strong>Authentification :</strong> Better Auth utilise des cookies de session sur le Web. Sur les plateformes natives, les éléments de session sont conservés dans le stockage sécurisé de l’appareil. Ils permettent l’accès aux fonctionnalités protégées et cessent d’être valides à leur expiration ou à leur révocation.</li>
+    <li><strong>Thème :</strong> la préférence <code>filfinance.theme</code> mémorise votre choix d’affichage dans l’application.</li>
+    <li><strong>Calendrier :</strong> des préférences locales conservent les filtres sélectionnés pour retrouver la même vue à la prochaine visite. Ces réglages restent sur l’appareil jusqu’à leur modification ou à l’effacement du stockage.</li>
+  </ul></section>
+  <section><h2>Gérer vos réglages</h2>
+    <p>Vous pouvez modifier le thème dans chaque interface et réinitialiser les filtres du calendrier. Les paramètres de votre navigateur ou de votre appareil permettent de supprimer les cookies et les données locales. Leur effacement peut vous déconnecter et réinitialiser vos préférences.</p>
+    <p>Ces stockages servent au fonctionnement du service ou aux réglages demandés. Aucun bandeau d’acceptation de traceurs facultatifs n’est affiché pour ces seuls usages. Si des traceurs soumis à consentement sont ajoutés, une information et des choix adaptés seront proposés avant leur activation.</p>
+  </section>
+  <section><h2>Contact</h2><p>Pour en savoir plus, consultez la <a href={legalPages[1].path}>politique de confidentialité</a> ou contactez <a href={`mailto:${legal.publisher.privacyContact}`}>{legal.publisher.privacyContact}</a>.</p></section>
+</LegalLayout>

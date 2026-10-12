@@ -1,0 +1,56 @@
+{
+  "items": [
+    {
+      "eventTime": "2026-06-15T12:30:00Z",
+      "sourceTitle": "GBP Public Sector Net Borrowing",
+      "translatedTitle": "Emprunt net du secteur public britannique",
+      "ttsText": "Emprunt net du secteur public britannique",
+      "country": "Royaume-Uni",
+      "currency": "GBP",
+      "forecastValue": "-12,4 Md",
+      "previousValue": "-9,8 Md",
+      "actualValue": null,
+      "sourceImportance": "medium",
+      "aiImportance": "high",
+      "finalImportance": "low",
+      "category": "unsupported",
+      "reasoning": "Actual above forecast",
+      "confidence": 1.4,
+      "sources": [
+        {
+          "source": "forex_factory_export",
+          "externalId": "gbp-public-borrowing-2026-06-15",
+          "sourceUrl": "https://nfs.faireconomy.media/ff_calendar_thisweek.json",
+          "rawTitle": "GBP Public Sector Net Borrowing",
+          "raw": {}
+        }
+      ]
+    },
+    {
+      "eventTime": "2026-06-15T12:30:00Z",
+      "sourceTitle": "GBP Public Sector Net Borrowing",
+      "translatedTitle": "Emprunt net du secteur public britannique",
+      "ttsText": "Emprunt net du secteur public britannique",
+      "country": "Royaume-Uni",
+      "currency": "GBP",
+      "forecastValue": "-12,4 Md",
+      "previousValue": "-9,8 Md",
+      "actualValue": null,
+      "sourceImportance": "medium",
+      "aiImportance": "high",
+      "finalImportance": "low",
+      "category": "unsupported",
+      "reasoning": "Actual above forecast",
+      "confidence": 1.4,
+      "sources": [
+        {
+          "source": "forex_factory_export",
+          "externalId": "gbp-public-borrowing-2026-06-15",
+          "sourceUrl": "https://nfs.faireconomy.media/ff_calendar_thisweek.json",
+          "rawTitle": "GBP Public Sector Net Borrowing",
+          "raw": {}
+        }
+      ]
+    }
+  ]
+}

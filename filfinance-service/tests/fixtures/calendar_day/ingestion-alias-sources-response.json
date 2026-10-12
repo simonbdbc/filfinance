@@ -1,0 +1,32 @@
+{
+  "items": [
+    {
+      "eventTime": null,
+      "event_time": "2026-06-15T09:00:00Z",
+      "sourceTitle": "  GBP  Public Sector Net Borrowing  ",
+      "translatedTitle": null,
+      "translated_title": "Emprunt net du secteur public britannique",
+      "ttsText": null,
+      "tts_text": "Emprunt net du secteur public britannique",
+      "sourceImportance": null,
+      "source_importance": "low",
+      "aiImportance": null,
+      "ai_importance": "medium",
+      "finalImportance": null,
+      "final_importance": "medium",
+      "category": "macro",
+      "reasoning": "Le chiffre publie est superieur aux previsions.",
+      "confidence": 0,
+      "sources": [
+        "custom_feed",
+        {
+          "source": "partner_calendar",
+          "raw": {}
+        },
+        {
+          "source": "bea_json"
+        }
+      ]
+    }
+  ]
+}

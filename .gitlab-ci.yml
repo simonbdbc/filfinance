@@ -1,0 +1,942 @@
+default:
+  tags:
+    - home-runner-docker
+  interruptible: true
+
+stages:
+  - validate
+  - deploy
+  - smoke
+
+workflow:
+  rules:
+    # Les validations et les releases ne s'executent que sur les branches
+    # durables. Les branches de correctif et les tags restent des references
+    # Git, sans consommer de runner ni creer de pipeline CI.
+    - if: '$CI_COMMIT_BRANCH == "main" || $CI_COMMIT_BRANCH == "dev"'
+    - when: never
+
+variables:
+  # Coordonnées publiques du socle légal ; les valeurs GitLab peuvent les surcharger.
+  PUBLIC_LEGAL_ENTITY_NAME: "SB ALGO"
+  PUBLIC_LEGAL_REGISTERED_OFFICE: "60 rue François 1er, 75008 Paris"
+  PUBLIC_LEGAL_PUBLICATION_DIRECTOR: "sbdev"
+  PUBLIC_LEGAL_PRIVACY_CONTACT: "support@filfinance.fr"
+  PUBLIC_LEGAL_DATA_RETENTION: "Les données du compte et des préférences sont conservées tant que le compte existe. Pour demander leur suppression, contactez support@filfinance.fr. La demande est examinée en tenant compte des obligations légales et des données nécessaires à la défense de droits ; aucun délai automatique de suppression n’est annoncé."
+  FILFINANCE_PROD_HLS_BASE_URL: "https://media.filfinance.fr"
+  FILFINANCE_DEV_LANDING_URL: "https://dev.filfinance.fr"
+  FILFINANCE_DEV_PWA_URL: "https://app.dev.filfinance.fr"
+  FILFINANCE_DEV_API_URL: "https://api.dev.filfinance.fr"
+  FILFINANCE_DEV_HLS_BASE_URL: "https://media.dev.filfinance.fr"
+  FILFINANCE_DEV_EDGE_URL: "https://live.dev.filfinance.fr"
+  FILFINANCE_DEV_ORIGIN_URL: "https://origin.dev.filfinance.fr"
+  CARGO_TERM_COLOR: "always"
+  CARGO_HOME: "/cargo"
+  RUSTUP_HOME: "/rustup"
+  CARGO_TARGET_DIR: "/target/filfinance-service"
+  npm_config_cache: "$CI_PROJECT_DIR/.npm"
+  WRANGLER_VERSION: "4.121.0"
+  # Le pilote Bunny DEV reste protege et explicite, mais n'utilise plus Cloudflare Pages/Workers.
+  FILFINANCE_DEV_EXECUTION_ENABLED: "true"
+
+docs:check:
+  stage: validate
+  image: alpine:3.22
+  script:
+    - apk add --no-cache bash curl jq nodejs openssh-client openssl python3
+    - test -f README.md
+    - test -f package.json
+    - test -f compose.yaml
+    - test -f compose.prod.yaml
+    - test -f compose.ovh.yaml
+    - test -f compose.local.yaml
+    - test -f deploy/traefik/ovh/compose.yaml
+    - test -f deploy/traefik/ovh/dynamic/filfinance-api.yaml.disabled
+    - test -f deploy/ovh/backup-filfinance.sh
+    - test -f deploy/ovh/systemd/filfinance-backup.service
+    - test -f deploy/ovh/systemd/filfinance-backup.timer
+    - test -f docs/OVH-PRODUCTION-RUNBOOK.md
+    - test ! -e compose.n8n.yaml
+    - test ! -d n8n
+    - test -f deploy/nginx/filfinance-gateway.conf
+    - test -f apps/landing/package.json
+    - test -f apps/landing/package-lock.json
+    - test -f apps/landing/astro.config.mjs
+    - test -f apps/landing/src/config/site.config.ts
+    - test -f apps/pwa/package.json
+    - test -f apps/pwa/package-lock.json
+    - test -f docs/architecture.md
+    - test -f filfinance-auth/package.json
+    - test -f filfinance-auth/tsconfig.json
+    - test -f filfinance-auth/Dockerfile
+    - test -f filfinance-auth/README.md
+    - test -f filfinance-auth/scripts/smtp_capture_server.mjs
+    - test -f filfinance-auth/scripts/run_integration_smoke.sh
+    - test -f filfinance-auth/db/auth-migrations/0001_better_auth.sql
+    - test -f filfinance-auth/db/app-migrations/0001_app_foundation.sql
+    - test -f filfinance-auth/db/app-migrations/0002_profile_preferences_and_sync.sql
+    - test -f filfinance-auth/docker/postgres-init/001-filfinance-auth.sh
+    - test -f docs/ROADMAP.md
+    - test -f docs/CALENDAR-NATIVE-SHADOW-RUNBOOK.md
+    - test -f docs/GITLAB-RUNBOOK.md
+    - test -f docs/BUNNY-DEV-RUNBOOK.md
+    - test -f docs/BUNNY-PRODUCTION-RUNBOOK.md
+    - test -f docs/epics/EPIC-020-gitlab-pipeline-cloudflare.md
+    - test -f docs/epics/EPIC-028-migration-production-filfinance-fr.md
+    - test -f docs/epics/EPIC-029-environnement-dev-pages-branch-dev.md
+    - test -f docs/epics/EPIC-030-n8n-ai-agent-qualification.md
+    - test -f docs/epics/EPIC-031-stabilisation-resume-ia-journalier.md
+    - test -f docs/epics/EPIC-032-refonte-calendrier-du-jour-n8n-audio-piper.md
+    - test -f docs/epics/EPIC-035-migration-hls-dev-bunny-cdn.md
+    - test -d docs/tickets
+    - test -z "$(find docs -maxdepth 1 -type f -name 'NEWS-*.md' -print -quit)"
+    - test -f docs/tickets/README.md
+    - test -f docs/tickets/NEWS-109-secrets-environnements-rollback.md
+    - test -f docs/tickets/NEWS-110-smoke-post-deploiement-cloudflare.md
+    - test -f docs/tickets/NEWS-124-smoke-runtime-backend-piper-hls.md
+    - test -f docs/tickets/NEWS-125-runtime-docker-piper-hls.md
+    - test -f docs/tickets/NEWS-126-runtime-docker-opus-mt.md
+    - test -f docs/tickets/NEWS-127-observabilite-traduction-tts-hls.md
+    - test -f docs/tickets/NEWS-128-normalisation-tts-finance.md
+    - test -f docs/tickets/NEWS-129-profils-traduction-opus-mt.md
+    - test -f docs/tickets/NEWS-130-pools-workers-traduction-tts.md
+    - test -f docs/tickets/NEWS-131-tuning-hls-cdn-latence.md
+    - test -f docs/tickets/NEWS-176-configuration-production-filfinance-fr.md
+    - test -f docs/tickets/NEWS-177-pipeline-gitlab-production-main.md
+    - test -f docs/tickets/NEWS-178-smokes-rollback-production-finale.md
+    - test -f docs/tickets/NEWS-184-openrouter-free-comparison-agent.md
+    - test -f docs/tickets/NEWS-185-persistence-agent-comparison-postgres.md
+    - test -f docs/tickets/NEWS-186-pipeline-prod-n8n-agent-main.md
+    - test -f docs/tickets/NEWS-187-documentation-pedagogique-ai-agent-n8n.md
+    - test -f docs/tickets/NEWS-188-validation-idempotence-non-regression-agent-n8n.md
+    - test -f docs/tickets/NEWS-189-audit-cache-fallback-resume-journalier.md
+    - test -f docs/tickets/NEWS-190-versionner-fallback-resume-journalier.md
+    - test -f docs/tickets/NEWS-191-rebuild-resume-ia-news-importantes-existantes.md
+    - test -f docs/tickets/NEWS-192-selection-resume-courant-priorite-ai.md
+    - test -f docs/tickets/NEWS-193-contexte-marche-sources-allowlist-resume-ia.md
+    - test -f docs/tickets/NEWS-194-observabilite-tests-resume-ia-journalier.md
+    - test -f docs/tickets/NEWS-203-provisioning-bunny-pull-zone-dev.md
+    - test -f docs/tickets/NEWS-204-resolver-client-hls-generique-ci-dev.md
+    - test -f docs/tickets/NEWS-205-garde-scripts-charge-compatible-bunny.md
+    - test -f docs/tickets/NEWS-206-validation-dev-bunny-charge-progressive.md
+    - test -f docs/tickets/NEWS-207-documentation-couts-rollback-promotion-bunny.md
+    - test -f docs/tickets/NEWS-216-liens-auth-natifs-verifies.md
+    - test -f docs/PRODUCTION-FINAL-RUNBOOK.md
+    - test -f docs/sql/schema.sql
+    - test -f docs/sql/migrations/0011_add_daily_summaries.sql
+    - test -f docs/sql/migrations/0012_add_daily_news_qualifications.sql
+    - test -f docs/sql/migrations/0013_add_daily_summary_scheduler_state.sql
+    - test -f docs/sql/migrations/0014_drop_news_audio_pipeline_candidates.sql
+    - test -f docs/sql/migrations/0016_add_daily_summary_admin_runs.sql
+    - test -f docs/sql/migrations/0017_add_calendar_day_tables.sql
+    - test -f scripts/smoke_deploy.sh
+    - test -f scripts/smoke_backend_runtime.sh
+    - test -f scripts/check_better_auth_env.sh
+    - test -f scripts/test_check_better_auth_env.sh
+    - test -f scripts/check_no_public_smtp_secrets.sh
+    - test -f scripts/test_check_no_public_smtp_secrets.sh
+    - test -f scripts/check_deploy_env.sh
+    - test -f scripts/test_check_deploy_env.sh
+    - test -f scripts/migrate_server_env.sh
+    - test -f scripts/test_migrate_server_env.sh
+    - test -f scripts/acquire_better_auth_smoke_token.mjs
+    - test -f scripts/acquire_better_auth_smoke_token.test.mjs
+    - test -f scripts/run_deployed_smoke_suite.sh
+    - node --test scripts/run_native_calendar_prod_once.test.mjs
+    - test -f scripts/smoke_bunny_dev_surface.mjs
+    - test -f scripts/check_gitlab_release_gate.sh
+    - test -f scripts/test_check_gitlab_release_gate.sh
+    - test -f scripts/test_production_deploy_manual.py
+    - test -f scripts/test_ci_workflow_branch_gate.py
+    - test -f scripts/test_ovh_deploy_assets.sh
+    - test -f scripts/check_ovh_go_live_env.sh
+    - test -f scripts/test_check_ovh_go_live_env.sh
+    - test -f scripts/bootstrap_ovh_env.sh
+    - test -f scripts/test_bootstrap_ovh_env.sh
+    - test -f scripts/verify_ovh_runtime.sh
+    - test -f scripts/check_cloudflare_release_preflight.sh
+    - test -f scripts/check_bunny_dev_release_preflight.sh
+    - test -f scripts/check_bunny_dev_release_preflight.test.mjs
+    - test -f scripts/check_bunny_prod_release_preflight.sh
+    - test -f scripts/test_check_bunny_prod_release_preflight.sh
+    - test -f scripts/deploy_bunny_storage.mjs
+    - test -f scripts/deploy_bunny_storage.test.mjs
+    - test -f filfinance-service/scripts/smoke_test_better_auth.sh
+    - test -f filfinance-service/scripts/smoke_test_websocket_roles.mjs
+    - bash -n scripts/smoke_deploy.sh
+    - bash -n scripts/smoke_backend_runtime.sh
+    - bash -n scripts/check_better_auth_env.sh
+    - bash -n scripts/test_check_better_auth_env.sh
+    - bash -n scripts/check_no_public_smtp_secrets.sh
+    - bash -n scripts/test_check_no_public_smtp_secrets.sh
+    - bash -n scripts/check_deploy_env.sh
+    - bash -n scripts/test_check_deploy_env.sh
+    - bash -n scripts/migrate_server_env.sh
+    - bash -n scripts/test_migrate_server_env.sh
+    - bash -n scripts/run_deployed_smoke_suite.sh
+    - bash -n scripts/check_gitlab_release_gate.sh
+    - bash -n scripts/test_check_gitlab_release_gate.sh
+    - bash -n scripts/check_ovh_go_live_env.sh
+    - bash -n scripts/test_check_ovh_go_live_env.sh
+    - bash -n scripts/bootstrap_ovh_env.sh
+    - bash -n scripts/test_bootstrap_ovh_env.sh
+    - bash -n scripts/verify_ovh_runtime.sh
+    - bash -n scripts/check_cloudflare_release_preflight.sh
+    - bash -n scripts/check_bunny_dev_release_preflight.sh
+    - bash -n scripts/check_bunny_prod_release_preflight.sh
+    - bash -n scripts/test_check_bunny_prod_release_preflight.sh
+    - bash -n filfinance-service/scripts/smoke_test_better_auth.sh
+    - node --check scripts/acquire_better_auth_smoke_token.mjs
+    - node --check scripts/smoke_bunny_dev_surface.mjs
+    - node --test scripts/deploy_bunny_storage.test.mjs
+    - node --test scripts/check_bunny_dev_release_preflight.test.mjs
+    - bash scripts/test_check_bunny_prod_release_preflight.sh
+    - node --test scripts/acquire_better_auth_smoke_token.test.mjs
+    - node --test scripts/observe_native_calendar_prod.test.mjs
+    - node --check filfinance-auth/scripts/smtp_capture_server.mjs
+    - node --check filfinance-auth/scripts/smoke_test_better_auth.mjs
+    - bash -n filfinance-auth/scripts/run_integration_smoke.sh
+    - node --check apps/pwa/scripts/check-auth-contract.cjs
+    - node --check filfinance-service/scripts/smoke_test_websocket_roles.mjs
+    - bash scripts/test_check_better_auth_env.sh
+    - bash scripts/test_check_no_public_smtp_secrets.sh
+    - bash scripts/test_check_deploy_env.sh
+    - bash scripts/test_migrate_server_env.sh
+    - bash scripts/test_check_gitlab_release_gate.sh
+    - python3 scripts/test_production_deploy_manual.py
+    - FILFINANCE_SSH_PIN_TEST_SHELL=sh python3 scripts/test_ssh_host_key_pinning.py
+    - FILFINANCE_DEPLOY_TEST_SHELL=sh python3 scripts/test_backend_deploy_shell.py
+    - python3 scripts/test_ci_workflow_branch_gate.py
+    - bash scripts/test_ovh_deploy_assets.sh
+    - bash scripts/test_check_ovh_go_live_env.sh
+    - bash scripts/test_bootstrap_ovh_env.sh
+    - bash -n filfinance-auth/docker/postgres-init/001-filfinance-auth.sh
+    - '! grep -R "[G]oogle Translate\\|[g]oogleTranslate\\|[Kk]okoro\\|backend_[k]okoro\\|NEWS_AUDIO_PIPELINE_MODE" docs .env.local.example .env.server.example filfinance-service/.env.example scripts'
+    - '! grep -E "^(N8N_|FILFINANCE_N8N_|FILFINANCE_CALENDAR_NATIVE_SHADOW_|FILFINANCE_CALENDAR_SHADOW_)" .env.local.example .env.server.example filfinance-service/.env.example'
+    - '! grep -R "OLLAMA\\|AI Agent Ollama\\|filfinance_ollama_data" compose.yaml compose.local.yaml compose.prod.yaml .env.local.example .env.server.example filfinance-service/.env.example'
+    - '! grep -R "<<<<<<<\\|=======\\|>>>>>>>" README.md .gitignore docs compose.yaml compose.local.yaml compose.prod.yaml'
+
+rust:fmt:
+  stage: validate
+  image: rust:1.96.0-bookworm
+  script:
+    - cd filfinance-service
+    - cargo fmt --check
+
+rust:test:
+  stage: validate
+  image: rust:1.96.0-bookworm
+  script:
+    - cd filfinance-service
+    - cargo test
+
+calendar:native:recovery:
+  stage: validate
+  image: rust:1.96.0-bookworm
+  script:
+    - cd filfinance-service
+    - cargo test native_calendar_recovery_e2e_is_idempotent_and_keeps_live_news_unblocked -- --nocapture
+
+edge:check:
+  stage: validate
+  image: node:24.13.1
+  cache:
+    key:
+      files:
+        - filfinance-edge/package-lock.json
+    paths:
+      - .npm
+  script:
+    - cd filfinance-edge
+    - npm ci
+    - npm run check
+
+auth:check:
+  stage: validate
+  image: node:24.13.1
+  cache:
+    key:
+      files:
+        - filfinance-auth/package-lock.json
+    paths:
+      - .npm
+  script:
+    - cd filfinance-auth
+    - npm ci
+    - npm test
+    - npm run check
+
+auth:integration:
+  stage: validate
+  image: node:24.13.1
+  services:
+    - name: postgres:17-alpine
+      alias: postgres
+  variables:
+    POSTGRES_DB: filfinance
+    POSTGRES_USER: postgres
+    POSTGRES_PASSWORD: filfinance_ci
+    AUTH_DATABASE_URL: postgresql://postgres:filfinance_ci@postgres:5432/filfinance
+    DATABASE_URL: postgresql://postgres:filfinance_ci@postgres:5432/filfinance
+    BETTER_AUTH_URL: http://localhost:3000
+    BETTER_AUTH_SECRET: filfinance-ci-secret-with-at-least-thirty-two-characters
+    BETTER_AUTH_JWT_AUDIENCE: http://localhost:3000
+    BETTER_AUTH_TRUSTED_ORIGINS: http://localhost:3000,http://localhost:8052
+    BETTER_AUTH_REQUIRE_EMAIL_VERIFICATION: "true"
+    APP_WEB_URL: http://localhost:8052
+    SMTP_HOST: 127.0.0.1
+    SMTP_PORT: "2525"
+    SMTP_SECURE: "false"
+    SMTP_REQUIRE_TLS: "false"
+    SMTP_FROM_EMAIL: noreply@filfinance.test
+    SMTP_FROM_NAME: Fil Finance CI
+  cache:
+    key:
+      files:
+        - filfinance-auth/package-lock.json
+    paths:
+      - .npm
+  script:
+    - cd filfinance-auth
+    - export PORT=3000
+    - npm ci
+    - |
+      node -e "const { Client } = require('pg'); const sleep = ms => new Promise(r => setTimeout(r, ms)); (async () => { for (let i = 0; i < 30; i += 1) { const db = new Client({ connectionString: process.env.AUTH_DATABASE_URL }); try { await db.connect(); await db.query('CREATE EXTENSION IF NOT EXISTS pgcrypto; CREATE SCHEMA IF NOT EXISTS auth; CREATE SCHEMA IF NOT EXISTS app;'); await db.end(); return; } catch (error) { await db.end().catch(() => {}); if (i === 29) throw error; await sleep(1000); } } })()"
+    - bash scripts/run_integration_smoke.sh
+
+landing:check:
+  stage: validate
+  image: node:24.13.1-bookworm
+  cache:
+    key:
+      files:
+        - apps/landing/package-lock.json
+    paths:
+      - .npm
+  before_script:
+    - apt-get update
+    - apt-get install -y --no-install-recommends chromium
+  script:
+    - cd apps/landing
+    - npm ci
+    - |
+      if [ "${CI_COMMIT_BRANCH:-}" = "dev" ]; then
+        : "${FILFINANCE_DEV_PWA_URL:?Missing FILFINANCE_DEV_PWA_URL for the dev landing build}"
+        printf '%s' "$FILFINANCE_DEV_PWA_URL" | grep -Eq '^https://[A-Za-z0-9.-]+(:[0-9]+)?$' || {
+          echo "FILFINANCE_DEV_PWA_URL must be an HTTPS origin without a path" >&2
+          exit 1
+        }
+        printf '%s' "$FILFINANCE_DEV_PWA_URL" | grep -Eiq 'replace-with|(^|\.)example\.|\.invalid$' && {
+          echo "FILFINANCE_DEV_PWA_URL contains a placeholder host" >&2
+          exit 1
+        } || true
+        printf '%s' "$FILFINANCE_DEV_PWA_URL" | grep -Eq '^https://[A-Za-z0-9-]+(\.[A-Za-z0-9-]+)*\.filfinance\.fr$' || {
+          echo "FILFINANCE_DEV_PWA_URL must use a same-site *.filfinance.fr custom domain" >&2
+          exit 1
+        }
+        export FILFINANCE_LANDING_URL="https://dev.filfinance.fr"
+        export FILFINANCE_PWA_URL="$FILFINANCE_DEV_PWA_URL"
+      else
+        export FILFINANCE_LANDING_URL="https://filfinance.fr"
+        export FILFINANCE_PWA_URL="https://app.filfinance.fr"
+      fi
+    - PUBLIC_LEGAL_PUBLICATION_ENFORCED=true npm run check
+    - CHROME_PATH=/usr/bin/chromium npm run lighthouse:ci
+  artifacts:
+    when: always
+    expire_in: 7 days
+    paths:
+      - apps/landing/dist
+      - apps/landing/reports
+
+client:typecheck:
+  stage: validate
+  image: node:24.13.1
+  cache:
+    key:
+      files:
+        - apps/pwa/package-lock.json
+    paths:
+      - .npm
+  script:
+    - cd apps/pwa
+    - npm ci
+    - npm run qa:frontend
+
+client:web-build:
+  stage: validate
+  image: node:24.13.1
+  cache:
+    key:
+      files:
+        - apps/pwa/package-lock.json
+    paths:
+      - .npm
+  script:
+    - cd apps/pwa
+    - npm ci
+    - |
+      if [ "${CI_COMMIT_BRANCH:-}" = "main" ] && [ "${FILFINANCE_PROD_DEPLOY_ENABLED:-false}" = "true" ]; then
+        test "${FILFINANCE_PROD_HLS_BASE_URL:-}" = "https://media.filfinance.fr" || {
+          echo "FILFINANCE_PROD_HLS_BASE_URL must equal https://media.filfinance.fr" >&2
+          exit 1
+        }
+        export EXPO_PUBLIC_FILFINANCE_WS_URL="wss://api.filfinance.fr/ws/news"
+        export EXPO_PUBLIC_FILFINANCE_EDGE_WS_URL="wss://live.filfinance.fr/ws/live"
+        export EXPO_PUBLIC_FILFINANCE_HLS_BASE_URL="$FILFINANCE_PROD_HLS_BASE_URL"
+        export EXPO_PUBLIC_FILFINANCE_PWA_URL="https://app.filfinance.fr"
+        export EXPO_PUBLIC_API_URL="https://api.filfinance.fr"
+        export EXPO_PUBLIC_BETTER_AUTH_URL="https://api.filfinance.fr"
+      fi
+      if [ "${CI_COMMIT_BRANCH:-}" = "dev" ]; then
+        test -n "${FILFINANCE_DEV_PWA_URL:-}" || {
+          echo "FILFINANCE_DEV_PWA_URL is required for the dev PWA build" >&2
+          exit 1
+        }
+        test "${FILFINANCE_DEV_HLS_BASE_URL:-}" = "https://media.dev.filfinance.fr" || {
+          echo "FILFINANCE_DEV_HLS_BASE_URL must equal https://media.dev.filfinance.fr" >&2
+          exit 1
+        }
+        export EXPO_PUBLIC_FILFINANCE_WS_URL="wss://api.dev.filfinance.fr/ws/news"
+        export EXPO_PUBLIC_FILFINANCE_EDGE_WS_URL="wss://live.dev.filfinance.fr/ws/live"
+        export EXPO_PUBLIC_FILFINANCE_HLS_BASE_URL="$FILFINANCE_DEV_HLS_BASE_URL"
+        export EXPO_PUBLIC_FILFINANCE_PWA_URL="$FILFINANCE_DEV_PWA_URL"
+        export EXPO_PUBLIC_API_URL="https://api.dev.filfinance.fr"
+        export EXPO_PUBLIC_BETTER_AUTH_URL="https://api.dev.filfinance.fr"
+      fi
+    - |
+      if [ "${CI_COMMIT_BRANCH:-}" = "dev" ]; then
+        export EXPO_PUBLIC_LANDING_ORIGIN="https://dev.filfinance.fr"
+      else
+        export EXPO_PUBLIC_LANDING_ORIGIN="https://filfinance.fr"
+      fi
+    - npm run build:web
+    - |
+      if [ "${CI_COMMIT_BRANCH:-}" = "main" ] && [ "${FILFINANCE_PROD_DEPLOY_ENABLED:-false}" = "true" ]; then
+        node scripts/check-web-public-env.cjs --target prod --dist dist
+      fi
+      if [ "${CI_COMMIT_BRANCH:-}" = "dev" ]; then
+        node scripts/check-web-public-env.cjs --target dev --dist dist
+      fi
+  artifacts:
+    when: on_success
+    expire_in: 1 day
+    paths:
+      - apps/pwa/dist
+
+release:prod-lock:
+  stage: validate
+  image: alpine:3.22
+  before_script:
+    - apk add --no-cache bash curl jq
+  script:
+    # Le test de récupération Rust est exécuté par `calendar:native:recovery`
+    # dans cette même pipeline. La release PROD ne dépend ni de DEV, ni d'un
+    # smoke DEV, ni d'une parité n8n désormais retirée.
+    - bash scripts/check_gitlab_release_gate.sh production lock-only
+    - bash scripts/check_bunny_prod_release_preflight.sh
+  rules:
+    # Une promotion de source sur `main` ne constitue pas une demande de
+    # release. Cette preflight ne s'exécute que pour une pipeline protegee
+    # explicitement lancee depuis GitLab (web/API), avec l'intention de release
+    # declaree. Les jobs mutables ci-dessous reprennent exactement ce garde-fou.
+    - if: '$CI_COMMIT_BRANCH == "main" && $CI_COMMIT_REF_PROTECTED == "true" && ($CI_PIPELINE_SOURCE == "web" || $CI_PIPELINE_SOURCE == "api") && $FILFINANCE_PROD_RELEASE_REQUESTED == "true" && $FILFINANCE_PROD_DEPLOY_ENABLED == "true" && $FILFINANCE_PROD_BUNNY_DEPLOY_ENABLED == "true" && $FILFINANCE_BETTER_AUTH_DEPLOY_ENABLED == "true"'
+  environment:
+    name: production/preflight
+    action: verify
+
+release:dev-lock:
+  stage: validate
+  image: alpine:3.22
+  before_script:
+    - apk add --no-cache bash curl jq
+  script:
+    - bash scripts/check_gitlab_release_gate.sh development lock-only
+    - bash scripts/check_bunny_dev_release_preflight.sh
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "dev" && $FILFINANCE_DEV_EXECUTION_ENABLED == "true" && $CI_COMMIT_REF_PROTECTED == "true" && ($CI_PIPELINE_SOURCE == "web" || $CI_PIPELINE_SOURCE == "api") && $FILFINANCE_DEV_BUNNY_DEPLOY_ENABLED == "true" && $FILFINANCE_BETTER_AUTH_DEPLOY_ENABLED == "true"'
+  environment:
+    name: development/preflight
+    action: verify
+
+deploy:dev:landing:
+  stage: deploy
+  image: node:24.13.1-alpine
+  interruptible: false
+  resource_group: development
+  dependencies:
+    - landing:check
+    - client:web-build
+  needs:
+    # Storage can be populated before the first backend deployment and before
+    # the child DNS zone is delegated.
+    - job: release:dev-lock
+      artifacts: false
+    - job: landing:check
+      artifacts: true
+    - job: client:web-build
+      artifacts: true
+  environment:
+    name: development/landing
+  script:
+    - apk add --no-cache bash curl jq
+    - bash scripts/check_gitlab_release_gate.sh development lock-only
+    - bash scripts/check_bunny_dev_release_preflight.sh
+    - test -f apps/landing/dist/index.html
+    - node apps/pwa/scripts/check-web-public-env.cjs --target dev --dist apps/pwa/dist
+    - |
+      export BUNNY_STORAGE_ZONE="$BUNNY_STORAGE_ZONE_DEV_LANDING"
+      export BUNNY_STORAGE_PASSWORD="$BUNNY_STORAGE_PASSWORD_DEV_LANDING"
+      export BUNNY_PULL_ZONE_ID="$BUNNY_PULL_ZONE_ID_DEV_LANDING"
+      export BUNNY_API_KEY="$BUNNY_API_KEY_DEV"
+      node scripts/deploy_bunny_storage.mjs --dist apps/landing/dist
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "dev" && $FILFINANCE_DEV_EXECUTION_ENABLED == "true" && $CI_COMMIT_REF_PROTECTED == "true" && ($CI_PIPELINE_SOURCE == "web" || $CI_PIPELINE_SOURCE == "api") && $FILFINANCE_DEV_BUNNY_DEPLOY_ENABLED == "true" && $FILFINANCE_BETTER_AUTH_DEPLOY_ENABLED == "true"'
+
+deploy:dev:pwa:
+  stage: deploy
+  image: node:24.13.1-alpine
+  interruptible: false
+  resource_group: development
+  dependencies:
+    - client:web-build
+  needs:
+    # Les documents publics doivent être validés avant de publier leurs liens dans la PWA.
+    - job: landing:check
+      artifacts: false
+    - job: release:dev-lock
+      artifacts: false
+    - job: client:web-build
+      artifacts: true
+  environment:
+    name: development/pwa
+    url: $FILFINANCE_DEV_PWA_URL
+  script:
+    - apk add --no-cache bash curl jq
+    - bash scripts/check_gitlab_release_gate.sh development lock-only
+    - bash scripts/check_bunny_dev_release_preflight.sh
+    - |
+      export BUNNY_STORAGE_ZONE="$BUNNY_STORAGE_ZONE_DEV_PWA"
+      export BUNNY_STORAGE_PASSWORD="$BUNNY_STORAGE_PASSWORD_DEV_PWA"
+      export BUNNY_PULL_ZONE_ID="$BUNNY_PULL_ZONE_ID_DEV_PWA"
+      export BUNNY_API_KEY="$BUNNY_API_KEY_DEV"
+      node scripts/deploy_bunny_storage.mjs --dist apps/pwa/dist
+      node apps/pwa/scripts/check-web-public-env.cjs --target dev --dist apps/pwa/dist
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "dev" && $FILFINANCE_DEV_EXECUTION_ENABLED == "true" && $CI_COMMIT_REF_PROTECTED == "true" && ($CI_PIPELINE_SOURCE == "web" || $CI_PIPELINE_SOURCE == "api") && $FILFINANCE_DEV_BUNNY_DEPLOY_ENABLED == "true" && $FILFINANCE_BETTER_AUTH_DEPLOY_ENABLED == "true"'
+
+deploy:main:bunny-landing:
+  stage: deploy
+  image: node:24.13.1-alpine
+  interruptible: false
+  resource_group: production
+  needs:
+    - job: release:prod-lock
+      artifacts: false
+    - job: landing:check
+      artifacts: true
+  environment:
+    name: production/landing
+    url: https://filfinance.fr
+  script:
+    - apk add --no-cache bash curl jq
+    - bash scripts/check_gitlab_release_gate.sh production lock-only
+    - bash scripts/check_bunny_prod_release_preflight.sh
+    - test -f apps/landing/dist/index.html
+    - |
+      export BUNNY_API_KEY="$BUNNY_API_KEY_PROD"
+      export BUNNY_STORAGE_ZONE="$BUNNY_STORAGE_ZONE_PROD_LANDING"
+      export BUNNY_STORAGE_PASSWORD="$BUNNY_STORAGE_PASSWORD_PROD_LANDING"
+      export BUNNY_PULL_ZONE_ID="$BUNNY_PULL_ZONE_ID_PROD_LANDING"
+      node scripts/deploy_bunny_storage.mjs --dist apps/landing/dist
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "main" && $CI_COMMIT_REF_PROTECTED == "true" && ($CI_PIPELINE_SOURCE == "web" || $CI_PIPELINE_SOURCE == "api") && $FILFINANCE_PROD_RELEASE_REQUESTED == "true" && $FILFINANCE_PROD_DEPLOY_ENABLED == "true" && $FILFINANCE_PROD_BUNNY_DEPLOY_ENABLED == "true" && $FILFINANCE_BETTER_AUTH_DEPLOY_ENABLED == "true"'
+      # Le frontend production ne doit jamais suivre automatiquement un push de `main`.
+      when: manual
+      allow_failure: false
+
+deploy:main:bunny-pwa:
+  stage: deploy
+  image: node:24.13.1-alpine
+  interruptible: false
+  resource_group: production
+  needs:
+    # Les documents publics doivent être validés avant de publier leurs liens dans la PWA.
+    - job: landing:check
+      artifacts: false
+    - job: release:prod-lock
+      artifacts: false
+    - job: client:web-build
+      artifacts: true
+  environment:
+    name: production/pwa
+    url: https://app.filfinance.fr
+  script:
+    - apk add --no-cache bash curl jq
+    - bash scripts/check_gitlab_release_gate.sh production lock-only
+    - bash scripts/check_bunny_prod_release_preflight.sh
+    - node apps/pwa/scripts/check-web-public-env.cjs --target prod --dist apps/pwa/dist
+    - |
+      export BUNNY_API_KEY="$BUNNY_API_KEY_PROD"
+      export BUNNY_STORAGE_ZONE="$BUNNY_STORAGE_ZONE_PROD_PWA"
+      export BUNNY_STORAGE_PASSWORD="$BUNNY_STORAGE_PASSWORD_PROD_PWA"
+      export BUNNY_PULL_ZONE_ID="$BUNNY_PULL_ZONE_ID_PROD_PWA"
+      node scripts/deploy_bunny_storage.mjs --dist apps/pwa/dist
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "main" && $CI_COMMIT_REF_PROTECTED == "true" && ($CI_PIPELINE_SOURCE == "web" || $CI_PIPELINE_SOURCE == "api") && $FILFINANCE_PROD_RELEASE_REQUESTED == "true" && $FILFINANCE_PROD_DEPLOY_ENABLED == "true" && $FILFINANCE_PROD_BUNNY_DEPLOY_ENABLED == "true" && $FILFINANCE_BETTER_AUTH_DEPLOY_ENABLED == "true"'
+      # La PWA production ne doit jamais suivre automatiquement un push de `main`.
+      when: manual
+      allow_failure: false
+
+deploy:main:edge:
+  stage: deploy
+  image: node:24.13.1
+  interruptible: false
+  resource_group: production
+  needs:
+    - job: deploy:main:backend
+      artifacts: false
+  environment:
+    name: production/edge
+    url: https://live.filfinance.fr
+  script:
+    - 'test -n "${CLOUDFLARE_ACCOUNT_ID:-}" || { echo "Missing CLOUDFLARE_ACCOUNT_ID" >&2; exit 1; }'
+    - bash scripts/check_cloudflare_release_preflight.sh prod
+    - |
+      : "${CLOUDFLARE_API_TOKEN_WORKERS_PROD:?Missing CLOUDFLARE_API_TOKEN_WORKERS_PROD}"
+      export CLOUDFLARE_API_TOKEN="$CLOUDFLARE_API_TOKEN_WORKERS_PROD"
+    - cd filfinance-edge
+    - npm ci
+    - npx --yes "wrangler@${WRANGLER_VERSION}" deploy
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "main" && $CI_COMMIT_REF_PROTECTED == "true" && ($CI_PIPELINE_SOURCE == "web" || $CI_PIPELINE_SOURCE == "api") && $FILFINANCE_PROD_RELEASE_REQUESTED == "true" && $FILFINANCE_PROD_DEPLOY_ENABLED == "true" && $FILFINANCE_BETTER_AUTH_DEPLOY_ENABLED == "true"'
+      # Le Worker live reste soumis a la meme approbation explicite que le backend.
+      when: manual
+      allow_failure: false
+
+.deploy_backend_template: &deploy_backend_template
+  stage: deploy
+  image: alpine:3.22
+  interruptible: false
+  dependencies: []
+  environment:
+    name: production
+  before_script:
+    - apk add --no-cache curl openssh-client
+    - export SSH_PORT="${SSH_PORT:-${PORT:-}}"
+    - 'test -n "$SSH_PORT" || { echo "Missing SSH_PORT" >&2; exit 1; }'
+    - ': "${CI_COMMIT_SHA:?Missing CI_COMMIT_SHA}"'
+    - ': "${SSH_HOST_KEY_SHA256:?Missing SSH_HOST_KEY_SHA256}"'
+    - 'case "$SSH_HOST_KEY_SHA256" in SHA256:*) ;; *) echo "SSH_HOST_KEY_SHA256 must use the SHA256: fingerprint format" >&2; exit 1 ;; esac'
+    - mkdir -p ~/.ssh
+    - echo "$SSH_PRIVATE_KEY" | base64 -d > ~/.ssh/id_rsa_home_srv_gitlab_ci
+    - chmod 700 ~/.ssh/id_rsa_home_srv_gitlab_ci
+    - eval "$(ssh-agent -s)"
+    - ssh-add ~/.ssh/id_rsa_home_srv_gitlab_ci
+    - |
+      # ssh-keyscan essaie aussi des algorithmes optionnels. Certains peuvent
+      # etre refuses par le serveur alors que des cles hote valides ont ete
+      # recues ; seule l'absence de cle candidate doit bloquer le deploiement.
+      ssh-keyscan -p "$SSH_PORT" "$HOST" 2>/dev/null > ~/.ssh/known_hosts.candidate || true
+      test -s ~/.ssh/known_hosts.candidate || {
+        echo "Unable to read the SSH host key candidate" >&2
+        exit 1
+      }
+      : > ~/.ssh/known_hosts
+      while IFS= read -r candidate; do
+        # OpenSSH peut ecrire ses bannieres en commentaires sur stdout.
+        # Seules les lignes de cle passent au calcul d'empreinte ; une cle
+        # invalide ou une empreinte differente restent bloquantes.
+        case "$candidate" in ''|\#*) continue ;; esac
+        candidate_fingerprint="$(printf '%s\n' "$candidate" | ssh-keygen -lf - -E sha256 2>/dev/null | awk '{print $2}')"
+        if [ "$candidate_fingerprint" = "$SSH_HOST_KEY_SHA256" ]; then
+          printf '%s\n' "$candidate" >> ~/.ssh/known_hosts
+        fi
+      done < ~/.ssh/known_hosts.candidate
+      rm -f ~/.ssh/known_hosts.candidate
+      test -s ~/.ssh/known_hosts || {
+        echo "SSH host key does not match SSH_HOST_KEY_SHA256" >&2
+        exit 1
+      }
+      chmod 644 ~/.ssh/known_hosts
+  script:
+    - |
+      set -e
+      : "${DEPLOY_BRANCH:?Missing DEPLOY_BRANCH}"
+      : "${DEPLOY_ENV:?Missing DEPLOY_ENV}"
+      : "${DEPLOY_ENV_FILE:?Missing DEPLOY_ENV_FILE}"
+      : "${DEPLOY_COMPOSE_PROJECT_NAME:?Missing DEPLOY_COMPOSE_PROJECT_NAME}"
+      : "${DEPLOY_BACKEND_PORT:?Missing DEPLOY_BACKEND_PORT}"
+      : "${DEPLOY_BROWSER_COLLECTOR_SCALE:?Missing DEPLOY_BROWSER_COLLECTOR_SCALE}"
+
+      case "$DEPLOY_ENV" in
+        prod)
+          DEPLOY_PATH="${FILFINANCE_PROD_DEPLOY_PATH:-/srv/filfinance}"
+          DEPLOY_PWA_URL="${FILFINANCE_PROD_PWA_URL:?Missing FILFINANCE_PROD_PWA_URL}"
+          test "$DEPLOY_PWA_URL" = "https://app.filfinance.fr" || {
+            echo "FILFINANCE_PROD_PWA_URL must equal https://app.filfinance.fr" >&2
+            exit 1
+          }
+          ;;
+        dev)
+          DEPLOY_PATH="${FILFINANCE_DEV_DEPLOY_PATH:-/raid/app/filfinance/filfinance-dev}"
+          DEPLOY_PWA_URL="${FILFINANCE_DEV_PWA_URL:?Missing FILFINANCE_DEV_PWA_URL}"
+          printf '%s' "$DEPLOY_PWA_URL" | grep -Eq '^https://[A-Za-z0-9.-]+(:[0-9]+)?$' || {
+            echo "FILFINANCE_DEV_PWA_URL must be an HTTPS origin without a path" >&2
+            exit 1
+          }
+          printf '%s' "$DEPLOY_PWA_URL" | grep -Eiq 'replace-with|(^|\.)example\.|\.invalid$' && {
+            echo "FILFINANCE_DEV_PWA_URL contains a placeholder host" >&2
+            exit 1
+          } || true
+          ;;
+        *) echo "Unsupported DEPLOY_ENV: $DEPLOY_ENV" >&2; exit 1 ;;
+      esac
+
+      ssh -o BatchMode=yes -o StrictHostKeyChecking=yes -o UserKnownHostsFile=~/.ssh/known_hosts "$USER@$HOST" -p "$SSH_PORT" \
+      "set -e;
+      echo 'Deploying Fil Finance backend';
+      echo 'Environment: $DEPLOY_ENV';
+      echo 'Branch: $DEPLOY_BRANCH';
+      echo 'Commit: $CI_COMMIT_SHA';
+      echo 'Deploy path: $DEPLOY_PATH';
+      cd '$DEPLOY_PATH';
+      if [ -n \"\$(git status --porcelain)\" ]; then
+        echo 'Remote deploy worktree is not clean';
+        git status --short;
+        exit 1;
+      fi;
+      git fetch origin '$DEPLOY_BRANCH';
+      git cat-file -e '$CI_COMMIT_SHA^{commit}';
+      git checkout --detach '$CI_COMMIT_SHA';
+      test \"\$(git rev-parse HEAD)\" = '$CI_COMMIT_SHA';
+      export DOCKER_BUILDKIT=1 COMPOSE_BAKE=true;
+      export COMPOSE_PROJECT_NAME='$DEPLOY_COMPOSE_PROJECT_NAME';
+      export FILFINANCE_ENV_FILE='$DEPLOY_ENV_FILE';
+      export FILFINANCE_BACKEND_PORT='$DEPLOY_BACKEND_PORT';
+      export FILFINANCE_BROWSER_COLLECTOR_SCALE='$DEPLOY_BROWSER_COLLECTOR_SCALE';
+      if [ ! -f '$DEPLOY_ENV_FILE' ]; then
+        echo 'Missing $DEPLOY_ENV_FILE in deploy directory';
+        echo 'Create it from .env.server.example on the server before rerunning the pipeline.';
+        echo 'Current remote directory:';
+        pwd;
+        echo 'Directory content:';
+        ls -la;
+        exit 1;
+      fi;
+      echo 'Migrating server environment if needed';
+      bash scripts/migrate_server_env.sh '$DEPLOY_ENV_FILE';
+      echo 'Checking deploy environment isolation';
+      bash scripts/check_deploy_env.sh '$DEPLOY_ENV_FILE' '$DEPLOY_ENV';
+      echo 'Checking Better Auth environment';
+      bash scripts/check_better_auth_env.sh '$DEPLOY_ENV_FILE' '$DEPLOY_ENV' '$DEPLOY_PWA_URL';
+      case '$DEPLOY_ENV' in
+        prod)
+          export FILFINANCE_COMPOSE_FILES=compose.yaml:compose.prod.yaml:compose.ovh.yaml;
+          export FILFINANCE_OVH_COMPOSE_FILE='-f compose.ovh.yaml';
+          ;;
+        dev)
+          export FILFINANCE_COMPOSE_FILES=compose.yaml:compose.prod.yaml;
+          export FILFINANCE_OVH_COMPOSE_FILE='';
+          ;;
+      esac;
+      echo \"Using compose files: \$FILFINANCE_COMPOSE_FILES\";
+      if [ \"\$FILFINANCE_BROWSER_COLLECTOR_SCALE\" = '0' ]; then
+        export FILFINANCE_COMPOSE_SCALE_ARGS='--scale financialjuice-browser-collector=0';
+      else
+        export FILFINANCE_COMPOSE_SCALE_ARGS='';
+      fi;
+      echo \"Browser collector scale: \$FILFINANCE_BROWSER_COLLECTOR_SCALE\";
+      echo 'Validating docker compose configuration';
+      docker compose --env-file '$DEPLOY_ENV_FILE' -f compose.yaml -f compose.prod.yaml \$FILFINANCE_OVH_COMPOSE_FILE config >/dev/null;
+      # n8n ne fait plus partie du chemin calendrier. L'inventaire reste
+      # redige (metadonnees Docker seulement) et cible uniquement le projet
+      # Compose de cet environnement ; aucun volume n'est monte ou supprime.
+      legacy_n8n_ids=\$(docker ps -aq --filter 'label=com.docker.compose.project=$DEPLOY_COMPOSE_PROJECT_NAME' --filter 'label=com.docker.compose.service=n8n');
+      legacy_n8n_postgres_ids=\$(docker ps -aq --filter 'label=com.docker.compose.project=$DEPLOY_COMPOSE_PROJECT_NAME' --filter 'label=com.docker.compose.service=n8n-postgres');
+      echo 'Legacy n8n inventory (redacted):';
+      for legacy_n8n_id in \$legacy_n8n_ids \$legacy_n8n_postgres_ids; do
+        docker ps -a --filter id=\$legacy_n8n_id --format 'id={{.ID}} name={{.Names}} status={{.Status}}';
+        docker inspect --format '{{range .Mounts}}{{if .Name}}volume={{.Name}} destination={{.Destination}}{{end}}{{end}}' \$legacy_n8n_id;
+      done;
+      echo 'Removing legacy n8n containers without deleting their volumes';
+      for legacy_n8n_id in \$legacy_n8n_ids \$legacy_n8n_postgres_ids; do
+        docker rm -f \$legacy_n8n_id;
+      done;
+      test -z \"\$(docker ps -aq --filter 'label=com.docker.compose.project=$DEPLOY_COMPOSE_PROJECT_NAME' --filter 'label=com.docker.compose.service=n8n')\";
+      test -z \"\$(docker ps -aq --filter 'label=com.docker.compose.project=$DEPLOY_COMPOSE_PROJECT_NAME' --filter 'label=com.docker.compose.service=n8n-postgres')\";
+      echo 'Starting backend containers';
+      docker compose --env-file '$DEPLOY_ENV_FILE' -f compose.yaml -f compose.prod.yaml \$FILFINANCE_OVH_COMPOSE_FILE up -d --build --force-recreate \$FILFINANCE_COMPOSE_SCALE_ARGS;
+      docker compose --env-file '$DEPLOY_ENV_FILE' -f compose.yaml -f compose.prod.yaml \$FILFINANCE_OVH_COMPOSE_FILE ps;
+      FILFINANCE_ENV_FILE='$DEPLOY_ENV_FILE' FILFINANCE_CONTAINER_BASE_URL='http://127.0.0.1:8088' bash scripts/smoke_backend_runtime.sh;
+      curl -fsS 'http://127.0.0.1:$DEPLOY_BACKEND_PORT/health' >/dev/null;
+      exit"
+
+      if [ "${DEPLOY_ENV:-}" = "dev" ] && [ "${FILFINANCE_DEV_BOOTSTRAP_RELEASE:-false}" = "true" ]; then
+        # The first DEV deployment creates the Traefik route before the new
+        # DNS names and certificates exist. Local server checks still run;
+        # only public probes are deferred to the normal release.
+        echo 'DEV bootstrap release: skipping public API and HLS probes'
+      elif [ -n "${DEPLOY_PUBLIC_API_URL:-}" ]; then
+        echo "Checking public backend health: ${DEPLOY_PUBLIC_API_URL}/health"
+        curl -fsS "${DEPLOY_PUBLIC_API_URL}/health" >/dev/null
+        echo "Checking public Better Auth JWKS: ${DEPLOY_PUBLIC_API_URL}/api/auth/jwks"
+        curl -fsS "${DEPLOY_PUBLIC_API_URL}/api/auth/jwks" | grep -q '"keys"'
+        if [ -n "${DEPLOY_PUBLIC_HLS_PROBE_URL:-}" ]; then
+          echo "Checking public HLS origin through CDN: ${DEPLOY_PUBLIC_HLS_PROBE_URL}"
+          hls_status="$(curl -sS -o /tmp/filfinance-hls-probe.txt -w '%{http_code}' "${DEPLOY_PUBLIC_HLS_PROBE_URL}" || true)"
+          case "$hls_status" in
+            200|401) ;;
+            *)
+              echo "Unexpected HLS probe status: ${hls_status}" >&2
+              cat /tmp/filfinance-hls-probe.txt >&2 || true
+              exit 1
+              ;;
+          esac
+        fi
+      fi
+
+deploy:main:backend:
+  <<: *deploy_backend_template
+  resource_group: production
+  variables:
+    DEPLOY_BRANCH: "main"
+    DEPLOY_ENV: "prod"
+    DEPLOY_ENV_FILE: ".env.server.prod"
+    DEPLOY_COMPOSE_PROJECT_NAME: "filfinance_prod"
+    DEPLOY_BACKEND_PORT: "8088"
+    DEPLOY_BROWSER_COLLECTOR_SCALE: "1"
+    DEPLOY_PUBLIC_API_URL: "https://api.filfinance.fr"
+    DEPLOY_PUBLIC_HLS_PROBE_URL: "https://media.filfinance.fr/audio/replay/today/playlist.m3u8"
+  environment:
+    name: production/backend
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "main" && $CI_COMMIT_REF_PROTECTED == "true" && ($CI_PIPELINE_SOURCE == "web" || $CI_PIPELINE_SOURCE == "api") && $FILFINANCE_PROD_RELEASE_REQUESTED == "true" && $FILFINANCE_PROD_DEPLOY_ENABLED == "true" && $FILFINANCE_BETTER_AUTH_DEPLOY_ENABLED == "true"'
+      # `--force-recreate` rend ce job sensible au live : aucune execution implicite n'est admissible.
+      when: manual
+      allow_failure: false
+
+deploy:dev:backend:
+  <<: *deploy_backend_template
+  resource_group: development
+  variables:
+    DEPLOY_BRANCH: "dev"
+    DEPLOY_ENV: "dev"
+    DEPLOY_ENV_FILE: ".env.server.dev"
+    DEPLOY_COMPOSE_PROJECT_NAME: "filfinance_dev"
+    DEPLOY_BACKEND_PORT: "18088"
+    DEPLOY_BROWSER_COLLECTOR_SCALE: "0"
+    DEPLOY_PUBLIC_API_URL: "https://api.dev.filfinance.fr"
+    DEPLOY_PUBLIC_HLS_PROBE_URL: "https://media.dev.filfinance.fr/audio/replay/today/playlist.m3u8"
+  environment:
+    name: development/backend
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "dev" && $FILFINANCE_DEV_EXECUTION_ENABLED == "true" && $CI_COMMIT_REF_PROTECTED == "true" && ($CI_PIPELINE_SOURCE == "web" || $CI_PIPELINE_SOURCE == "api") && $FILFINANCE_DEV_BUNNY_DEPLOY_ENABLED == "true" && $FILFINANCE_BETTER_AUTH_DEPLOY_ENABLED == "true"'
+      # Le backend DEV demeure l'unique porte manuelle de la release complete.
+      when: manual
+      allow_failure: false
+
+smoke:main:frontends:
+  stage: smoke
+  image: node:24.13.1-alpine
+  interruptible: false
+  resource_group: production
+  needs:
+    - job: deploy:main:bunny-landing
+      artifacts: false
+    - job: deploy:main:bunny-pwa
+      artifacts: false
+  environment:
+    name: production/frontend-smoke
+    url: https://filfinance.fr
+  script:
+    - apk add --no-cache bash curl grep
+    - |
+      FILFINANCE_FRONTEND_URL="https://filfinance.fr" \
+      FILFINANCE_PWA_URL="https://app.filfinance.fr" \
+        bash scripts/smoke_deploy.sh frontend
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "main" && $CI_COMMIT_REF_PROTECTED == "true" && ($CI_PIPELINE_SOURCE == "web" || $CI_PIPELINE_SOURCE == "api") && $FILFINANCE_PROD_RELEASE_REQUESTED == "true" && $FILFINANCE_PROD_DEPLOY_ENABLED == "true" && $FILFINANCE_PROD_BUNNY_DEPLOY_ENABLED == "true" && $FILFINANCE_BETTER_AUTH_DEPLOY_ENABLED == "true"'
+      # A executer apres activation des certificats Bunny et bascule DNS.
+      when: manual
+      allow_failure: false
+
+smoke:main:
+  stage: smoke
+  image: node:24.13.1-alpine
+  interruptible: false
+  resource_group: production
+  needs:
+    - job: deploy:main:bunny-landing
+      artifacts: false
+    - job: deploy:main:bunny-pwa
+      artifacts: false
+    - job: deploy:main:backend
+      artifacts: false
+    - job: deploy:main:edge
+      artifacts: false
+  environment:
+    name: production/smoke
+    url: https://filfinance.fr
+  script:
+    - apk add --no-cache bash curl grep
+    - |
+      FILFINANCE_FRONTEND_URL="https://filfinance.fr" \
+      FILFINANCE_PWA_URL="https://app.filfinance.fr" \
+      FILFINANCE_API_URL="https://api.filfinance.fr" \
+      FILFINANCE_EDGE_URL="https://live.filfinance.fr" \
+      FILFINANCE_CHECK_EDGE="${FILFINANCE_CHECK_EDGE:-1}" \
+      FILFINANCE_NATIVE_CALENDAR_OBSERVE=1 \
+        bash scripts/run_deployed_smoke_suite.sh
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "main" && $CI_COMMIT_REF_PROTECTED == "true" && ($CI_PIPELINE_SOURCE == "web" || $CI_PIPELINE_SOURCE == "api") && $FILFINANCE_PROD_RELEASE_REQUESTED == "true" && $FILFINANCE_PROD_DEPLOY_ENABLED == "true" && $FILFINANCE_PROD_BUNNY_DEPLOY_ENABLED == "true" && $FILFINANCE_BETTER_AUTH_DEPLOY_ENABLED == "true"'
+
+calendar:main:run-once:
+  stage: smoke
+  image: node:24.13.1-alpine
+  interruptible: false
+  resource_group: production
+  retry: 0
+  timeout: 3 minutes
+  needs:
+    - job: smoke:main
+      artifacts: false
+  environment:
+    name: production/smoke
+    action: verify
+  script:
+    - node scripts/run_native_calendar_prod_once.mjs
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "main" && $CI_COMMIT_REF_PROTECTED == "true" && ($CI_PIPELINE_SOURCE == "web" || $CI_PIPELINE_SOURCE == "api") && $FILFINANCE_PROD_RELEASE_REQUESTED == "true" && $FILFINANCE_PROD_DEPLOY_ENABLED == "true" && $FILFINANCE_PROD_BUNNY_DEPLOY_ENABLED == "true" && $FILFINANCE_BETTER_AUTH_DEPLOY_ENABLED == "true" && $FILFINANCE_CALENDAR_RUN_AUTHORIZED == "true" && $FILFINANCE_CALENDAR_RUN_DAY && $FILFINANCE_CALENDAR_RUN_EXPECTED_ID'
+      when: manual
+      allow_failure: false
+
+smoke:dev:
+  stage: smoke
+  image: node:24.13.1-alpine
+  interruptible: false
+  resource_group: development
+  needs:
+    - job: deploy:dev:landing
+      artifacts: false
+    - job: deploy:dev:pwa
+      artifacts: false
+    - job: deploy:dev:backend
+      artifacts: false
+  environment:
+    name: development/smoke
+    url: https://dev.filfinance.fr
+  script:
+    - apk add --no-cache bash curl grep
+    - 'test -n "${FILFINANCE_DEV_PWA_URL:-}" || { echo "Missing FILFINANCE_DEV_PWA_URL" >&2; exit 1; }'
+    - |
+      FILFINANCE_FRONTEND_URL="$FILFINANCE_DEV_LANDING_URL" \
+      FILFINANCE_PWA_URL="$FILFINANCE_DEV_PWA_URL" \
+      FILFINANCE_API_URL="$FILFINANCE_DEV_API_URL" \
+      FILFINANCE_EDGE_URL="$FILFINANCE_DEV_EDGE_URL" \
+      FILFINANCE_HLS_URL="$FILFINANCE_DEV_HLS_BASE_URL" \
+      FILFINANCE_BUNNY_DEV_SMOKE=1 \
+      FILFINANCE_CHECK_EDGE="${FILFINANCE_CHECK_EDGE:-1}" \
+        bash scripts/run_deployed_smoke_suite.sh
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "dev" && $FILFINANCE_DEV_EXECUTION_ENABLED == "true" && $CI_COMMIT_REF_PROTECTED == "true" && ($CI_PIPELINE_SOURCE == "web" || $CI_PIPELINE_SOURCE == "api") && $FILFINANCE_DEV_BUNNY_DEPLOY_ENABLED == "true" && $FILFINANCE_BETTER_AUTH_DEPLOY_ENABLED == "true"'

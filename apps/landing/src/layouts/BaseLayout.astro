@@ -1,0 +1,84 @@
+---
+import "../styles/global.css";
+
+import { siteConfig } from "../config/site.config";
+// Import brut : le build sert exactement le script comparé par le validateur.
+import themeScript from "../scripts/theme.js?raw";
+
+type Props = {
+  title?: string;
+  description?: string;
+  legal?: boolean;
+};
+
+const {
+  title = siteConfig.seo.title,
+  description = siteConfig.seo.description,
+  legal = false,
+} = Astro.props;
+
+const canonicalUrl = new URL(Astro.url.pathname, siteConfig.origin).toString();
+const socialImageUrl = new URL(siteConfig.images.social, siteConfig.origin).toString();
+const structuredData = [
+  {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    name: siteConfig.name,
+    url: siteConfig.origin,
+    description,
+    inLanguage: siteConfig.locale,
+  },
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    name: siteConfig.name,
+    applicationCategory: "FinanceApplication",
+    operatingSystem: "Web",
+    url: siteConfig.externalDestinations.home,
+    description,
+    inLanguage: siteConfig.locale,
+  },
+];
+---
+
+<!doctype html>
+<html lang={siteConfig.lang} data-theme="light">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <meta name="robots" content="index, follow" />
+    <meta name="theme-color" content={siteConfig.themeColors.light} data-light={siteConfig.themeColors.light} data-dark={siteConfig.themeColors.dark} />
+    <script is:inline id="filfinance-theme" set:html={themeScript} />
+    <link rel="canonical" href={canonicalUrl} />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content={siteConfig.locale.replace("-", "_")} />
+    <meta property="og:site_name" content={siteConfig.name} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonicalUrl} />
+    <meta property="og:image" content={socialImageUrl} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content={siteConfig.images.socialAlt} />
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={socialImageUrl} />
+    <meta name="twitter:image:alt" content={siteConfig.images.socialAlt} />
+
+    <link rel="icon" type="image/png" sizes="32x32" href={siteConfig.icons.favicon32} />
+    <link rel="icon" type="image/png" sizes="64x64" href={siteConfig.icons.favicon64} />
+    <link rel="icon" type="image/png" sizes="192x192" href={siteConfig.icons.app192} />
+    <link rel="apple-touch-icon" sizes="180x180" href={siteConfig.icons.appleTouch} />
+
+    <script is:inline type="application/ld+json" set:html={JSON.stringify(legal ? { "@context": "https://schema.org", "@type": "WebPage", name: title, description, url: canonicalUrl, inLanguage: siteConfig.locale } : structuredData)} />
+  </head>
+  <body>
+    <a class="skip-link" href="#contenu">Aller au contenu</a>
+    <slot />
+  </body>
+</html>

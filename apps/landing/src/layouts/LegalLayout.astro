@@ -1,0 +1,25 @@
+---
+import BaseLayout from "./BaseLayout.astro";
+import SiteHeader from "../components/SiteHeader.astro";
+import SiteFooter from "../components/SiteFooter.astro";
+import { legalConfig, legalPages } from "../config/legal.config";
+import { siteConfig } from "../config/site.config";
+import "../styles/legal.css";
+type Props = { page: typeof legalPages[number] };
+const { page } = Astro.props;
+---
+<BaseLayout title={`${page.title} | ${siteConfig.name}`} description={page.description} legal>
+  <SiteHeader />
+  <main id="contenu" class="legal-main container" tabindex="-1">
+    <a class="text-link legal-back" href="/">← Retour à l’accueil</a>
+    <article class="legal-content" aria-labelledby="legal-title">
+      <header>
+        <p class="eyebrow">{siteConfig.name}</p>
+        <h1 id="legal-title">{page.title}</h1>
+        <p class="legal-date">Dernière mise à jour : <time datetime={legalConfig.updatedAtIso}>{legalConfig.updatedAt}</time></p>
+      </header>
+      <slot />
+    </article>
+  </main>
+  <SiteFooter />
+</BaseLayout>

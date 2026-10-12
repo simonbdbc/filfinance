@@ -1,0 +1,68 @@
+# OS/editor noise
+.DS_Store
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Local environment and secrets
+.env
+.env.*
+!.env.example
+!.env.server.example
+!.env.local.example
+*.pem
+*.key
+*.crt
+
+# Node / Expo
+node_modules/
+.npm/
+dist/
+apps/pwa/node_modules/
+filfinance-auth/node_modules/
+filfinance-auth/dist/
+apps/pwa/.expo/
+apps/pwa/dist/
+apps/pwa/dist-web-smoke/
+apps/pwa/web-build/
+apps/landing/dist/
+apps/landing/.astro/
+apps/landing/.lighthouseci/
+apps/landing/reports/
+apps/landing/public/icons/
+apps/landing/public/images/
+apps/landing/public/social/
+*.log
+
+# Rust
+target/
+filfinance-service/target/
+
+# Python local runtimes
+.venv/
+.venv-*/
+filfinance-service/.venv/
+filfinance-service/.venv-*/
+__pycache__/
+**/__pycache__/
+*.py[cod]
+
+# Local runtime data
+volumes/
+backups/
+filfinance-service/data/*.db
+filfinance-service/data/*.db-*
+filfinance-service/data/hls/
+filfinance-service/data/models/
+financialjuice-browser-collector/data/
+
+# Cloudflare local state
+.wrangler/
+filfinance-edge/.wrangler/
+
+# Generated reports
+coverage/
+.lighthouseci/
+reports/
+tmp/

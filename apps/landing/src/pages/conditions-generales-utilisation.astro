@@ -1,0 +1,31 @@
+---
+import LegalLayout from "../layouts/LegalLayout.astro";
+import { legalConfig as legal, legalPages } from "../config/legal.config";
+---
+<LegalLayout page={legalPages[2]}>
+  <section><h2>Objet et public</h2><p>Fil Finance est un service d’information financière édité par {legal.publisher.name}, destiné aux personnes majeures francophones. Ces conditions concernent le site public et l’application associée.</p></section>
+  <section><h2>Services proposés</h2>
+    <p>Fil Finance propose un flux audio d’actualités en français, un fil d’actualités financières, un résumé audio du jour et un calendrier économique hebdomadaire. Les aperçus présentés sur le site public sont illustratifs ; l’accès aux fonctionnalités s’effectue dans l’application.</p>
+    <p>L’offre actuelle est gratuite. Une éventuelle offre payante fera l’objet d’informations et de conditions de vente spécifiques avant toute souscription ; ces CGU ne constituent pas des CGV.</p>
+  </section>
+  <section><h2>Information financière et décisions personnelles</h2>
+    <p>Les contenus sont fournis à titre d’information générale. Ils ne constituent pas un conseil d’investissement personnalisé, une recommandation adaptée à votre situation ou une invitation à acheter ou vendre un instrument financier.</p>
+    <p>Fil Finance n’exécute pas d’ordres et ne garantit aucun résultat de trading. Les informations, traductions, synthèses et calendriers peuvent comporter des erreurs, des omissions ou des retards. Vérifiez les informations déterminantes auprès de leurs sources avant de prendre une décision. Les opérations sur les marchés présentent un risque de perte en capital.</p>
+  </section>
+  <section><h2>Compte et sécurité</h2>
+    <p>Certaines fonctionnalités nécessitent un compte et la vérification de votre adresse e-mail. Vous devez fournir des informations exactes, préserver la confidentialité de vos identifiants et signaler tout usage non autorisé.</p>
+    <p>Vous pouvez demander la suppression de votre compte à <a href={`mailto:${legal.publisher.privacyContact}`}>{legal.publisher.privacyContact}</a>. Les règles de traitement des données figurent dans la <a href={legalPages[1].path}>politique de confidentialité</a>.</p>
+  </section>
+  <section><h2>Usages autorisés et droits des tiers</h2>
+    <p>Vous vous engagez à utiliser le service dans le respect de la loi, de la sécurité du système et des droits des tiers. Sont notamment interdits le contournement des restrictions d’accès, les tentatives d’intrusion, la perturbation du service et la redistribution non autorisée des contenus.</p>
+    <p>Les droits sur les actualités et contenus tiers restent détenus par leurs titulaires. La consultation du service ne transfère aucun droit de propriété intellectuelle.</p>
+  </section>
+  <section><h2>Disponibilité, suspension et responsabilité</h2>
+    <p>Le service peut être interrompu pour maintenance, incident ou indisponibilité d’un prestataire. L’accès peut être suspendu en cas d’abus ou de menace pour la sécurité. Lorsque la situation le permet, l’utilisateur concerné est informé du motif et peut contacter le support.</p>
+    <p>L’éditeur ne garantit pas une disponibilité continue ni l’exhaustivité des informations. Ces dispositions n’excluent pas les responsabilités qui ne peuvent être écartées par la loi.</p>
+  </section>
+  <section><h2>Évolution, contact et droit applicable</h2>
+    <p>Les présentes conditions peuvent évoluer avec le service. La date de mise à jour figure en tête de page ; les changements importants sont portés à la connaissance des utilisateurs par un moyen approprié.</p>
+    <p>Pour toute question, contactez <a href={`mailto:${legal.publisher.privacyContact}`}>{legal.publisher.privacyContact}</a>. Les présentes conditions sont soumises au droit français, sans priver les utilisateurs des protections impératives qui leur sont applicables.</p>
+  </section>
+</LegalLayout>

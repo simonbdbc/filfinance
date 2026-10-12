@@ -1,0 +1,110 @@
+{
+  "description": "Références ImageGen, ni captures de recette ni preuves de déploiement. Copies binaires sans réencodage.",
+  "images": [
+    {
+      "file": "historique/pwa-table-de-session-v1.png",
+      "source_name": "exec-aaaab461-177d-49f2-86bb-737a94c7e302.png",
+      "source_directory": "/Users/simon/.codex/generated_images/01a094bb-a633-7f13-bda3-88d27584e1a0",
+      "created_on": "2026-09-15",
+      "archived_on": "2026-09-16",
+      "width": 1644,
+      "height": 957,
+      "size_bytes": 1402870,
+      "sha256": "61854b9f9f10286b7f9d774d264b3b861d6066bb8f774bec6e8f63fb5f3738bb",
+      "status": "historique",
+      "kind": "reference-visuelle-imagegen",
+      "derived_from": null
+    },
+    {
+      "file": "pwa-actualites-v1.png",
+      "source_name": "exec-89c59519-fbb5-409a-af15-f35848603c2d.png",
+      "source_directory": "/Users/simon/.codex/generated_images/01a094bb-a633-7f13-bda3-88d27584e1a0",
+      "created_on": "2026-09-15",
+      "archived_on": "2026-09-16",
+      "width": 1644,
+      "height": 957,
+      "size_bytes": 1361689,
+      "sha256": "5c76d81de9a113fbe58a4e0620cd5353ae3ad62bbde4575fb1743f42dc8a0d9e",
+      "status": "active",
+      "kind": "reference-visuelle-imagegen",
+      "derived_from": null,
+      "user_confirmed_source": {
+        "source_name": "Image Codex 16 sept. 2026, 11_01_10.png",
+        "source_directory": "/Users/simon/Downloads",
+        "sha256": "5c76d81de9a113fbe58a4e0620cd5353ae3ad62bbde4575fb1743f42dc8a0d9e",
+        "identical_to_archived_copy": true,
+        "instruction": "Utiliser cette maquette sans retouche pour Actualités ; aucun calendrier dans la page, seulement un lien de navigation vers /calendar."
+      }
+    },
+    {
+      "file": "historique/pwa-calendrier-v1.png",
+      "source_name": "exec-96d4460b-c2d8-4c5c-bc2f-947a2050dc83.png",
+      "source_directory": "/Users/simon/.codex/generated_images/01a094bb-a633-7f13-bda3-88d27584e1a0",
+      "created_on": "2026-09-15",
+      "archived_on": "2026-09-16",
+      "width": 1644,
+      "height": 957,
+      "size_bytes": 1320571,
+      "sha256": "000b477c97c0202bd3c6b74023be794b39ad126d66f0ba8ab1e348345fdf3b91",
+      "status": "historique",
+      "kind": "reference-visuelle-imagegen",
+      "derived_from": null
+    },
+    {
+      "file": "pwa-profil-v1.png",
+      "source_name": "exec-290d9ff8-4f9c-43d0-b49c-8fc2f7212bc1.png",
+      "source_directory": "/Users/simon/.codex/generated_images/01a094bb-a633-7f13-bda3-88d27584e1a0",
+      "created_on": "2026-09-15",
+      "archived_on": "2026-09-16",
+      "width": 1644,
+      "height": 957,
+      "size_bytes": 1287244,
+      "sha256": "0fe977515ce3735256c925b63e22566dbba8f8d76ed195f09a7964138f714a87",
+      "status": "active",
+      "kind": "reference-visuelle-imagegen",
+      "derived_from": null
+    },
+    {
+      "file": "pwa-administration-v1.png",
+      "source_name": "exec-0f03ae22-4b8a-452c-ab1f-e4c5c458e708.png",
+      "source_directory": "/Users/simon/.codex/generated_images/01a094bb-a633-7f13-bda3-88d27584e1a0",
+      "created_on": "2026-09-15",
+      "archived_on": "2026-09-16",
+      "width": 1644,
+      "height": 957,
+      "size_bytes": 1364303,
+      "sha256": "6f3fc14d02782078397c796947f9a4451718ea95a6d4d62e34f38b77999993d8",
+      "status": "active",
+      "kind": "reference-visuelle-imagegen",
+      "derived_from": null
+    },
+    {
+      "file": "pwa-table-de-session-v2.png",
+      "source_name": "exec-9e0abab4-e154-47cf-8029-af9143712faa.png",
+      "source_directory": "/Users/simon/.codex/generated_images/01a094bb-a633-7f13-bda3-88d27584e1a0",
+      "created_on": "2026-09-16",
+      "archived_on": "2026-09-16",
+      "width": 1644,
+      "height": 957,
+      "size_bytes": 1468604,
+      "sha256": "a768e0108fc0f552d7047585f8efd1abf06953ba24afab8df4b3ebde52941dfa",
+      "status": "active",
+      "kind": "reference-visuelle-imagegen",
+      "derived_from": "historique/pwa-table-de-session-v1.png"
+    },
+    {
+      "file": "pwa-calendrier-v2.png",
+      "source_name": "exec-ea6963d5-57bf-4380-b357-dc17e1ba0a7c.png",
+      "source_directory": "/Users/simon/.codex/generated_images/01a094bb-a633-7f13-bda3-88d27584e1a0",
+      "created_on": "2026-09-16",
+      "archived_on": "2026-09-16",
+      "width": 1644,
+      "height": 957,
+      "size_bytes": 1461919,
+      "sha256": "655c41b7c867036ed8f5eefb2ad419da6500e6265ddc34dfeba5efb887a0693a",
+      "status": "active",
+      "kind": "reference-visuelle-imagegen",
+      "derived_from": "historique/pwa-calendrier-v1.png"
+    }
+  ]
+}

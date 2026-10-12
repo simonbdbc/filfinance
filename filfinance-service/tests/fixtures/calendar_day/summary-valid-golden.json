@@ -1,0 +1,12 @@
+{
+  "contractVersion": "2026-08-24.calendar-native-v1",
+  "localDay": "2026-06-15",
+  "title": "Calendrier Filfinance",
+  "summaryText": "La decision de taux de la BCE est attendue a 12 h 30.",
+  "narrationText": "La decision de taux de la BCE est attendue a 12 h 30 et peut influencer l euro.",
+  "inputItemCount": 1,
+  "inputHighItemCount": 1,
+  "inputHighItemIds": [
+    42
+  ]
+}

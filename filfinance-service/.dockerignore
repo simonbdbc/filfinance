@@ -1,0 +1,7 @@
+.git
+.DS_Store
+.env
+.venv-piper
+.venv-opus-mt
+data
+target

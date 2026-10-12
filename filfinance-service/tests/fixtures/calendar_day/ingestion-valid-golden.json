@@ -1,0 +1,32 @@
+{
+  "contractVersion": "2026-08-24.calendar-native-v1",
+  "localDay": "2026-06-15",
+  "items": [
+    {
+      "eventTime": "2026-06-15T12:30:00Z",
+      "sourceTitle": "GBP Public Sector Net Borrowing",
+      "translatedTitle": "Emprunt net du secteur public britannique",
+      "ttsText": "Emprunt net du secteur public britannique",
+      "country": "Royaume-Uni",
+      "currency": "GBP",
+      "forecastValue": "-12,4 Md",
+      "previousValue": "-9,8 Md",
+      "actualValue": null,
+      "sourceImportance": "medium",
+      "aiImportance": "high",
+      "finalImportance": "high",
+      "category": "macro",
+      "reasoning": "Le chiffre publie est superieur aux previsions.",
+      "confidence": 1.0,
+      "sources": [
+        {
+          "source": "forex_factory_export",
+          "externalId": "gbp-public-borrowing-2026-06-15",
+          "sourceUrl": "https://nfs.faireconomy.media/ff_calendar_thisweek.json",
+          "rawTitle": "GBP Public Sector Net Borrowing",
+          "raw": {}
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,18 @@
+{
+  "name": "filfinance-monorepo",
+  "private": true,
+  "engines": {
+    "node": "24.13.1",
+    "npm": ">=11.8.0 <12"
+  },
+  "scripts": {
+    "dev:landing": "npm --prefix apps/landing run dev",
+    "build:landing": "npm --prefix apps/landing run build",
+    "preview:landing": "npm --prefix apps/landing run preview",
+    "check:landing": "npm --prefix apps/landing run check",
+    "lighthouse:landing": "npm --prefix apps/landing run lighthouse:ci",
+    "dev:pwa": "npm --prefix apps/pwa run start",
+    "build:pwa": "npm --prefix apps/pwa run build:web",
+    "check:pwa": "npm --prefix apps/pwa run qa:frontend"
+  }
+}

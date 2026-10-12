@@ -1,0 +1,4 @@
+export const MAX_HISTORY_ITEMS = 8;
+export const MAX_TRACE_ITEMS = 40;
+export const RECENT_AUDIO_DEDUP_WINDOW_MS = 30_000;
+export const MAX_RECENT_COMPLETED_AUDIO_IDS = 100;

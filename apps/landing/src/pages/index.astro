@@ -1,0 +1,100 @@
+---
+import AudioMark from "../components/AudioMark.astro";
+import Icon from "../components/Icon.astro";
+import Waveform from "../components/Waveform.astro";
+import BaseLayout from "../layouts/BaseLayout.astro";
+import SiteHeader from "../components/SiteHeader.astro";
+import SiteFooter from "../components/SiteFooter.astro";
+import { siteConfig as site } from "../config/site.config";
+---
+
+<BaseLayout>
+  <SiteHeader homepage />
+
+  <main id="contenu" tabindex="-1">
+    <section class="hero container" aria-labelledby="hero-title">
+      <p class="eyebrow">{site.hero.eyebrow}</p>
+      <h1 id="hero-title">{site.hero.heading}<em>{site.hero.continuation}</em></h1>
+      <p class="hero-description">{site.hero.description.map((line) => <span>{line}</span>)}</p>
+      <a class="button button-primary" data-cta="home" href={site.externalDestinations.home} aria-label="Écouter le flux dans l’application">{site.ctas.primary}</a>
+    </section>
+
+    <section id="offre" class="offer container" aria-labelledby="offer-title">
+      <h2 id="offer-title">{site.offerHeading}</h2>
+      <div class="services">
+        {site.services.map((service) => (
+          <article class="service">
+            <div class="service-icon">{service.icon === "audio" ? <AudioMark /> : <Icon name={service.icon} />}</div>
+            <h3>{service.title}</h3>
+            <p>{service.description}</p>
+          </article>
+        ))}
+      </div>
+    </section>
+
+    <!-- Le fond de section est pleine largeur ; le conteneur seul porte les marges. -->
+    <section id="flux-audio" class="audio-band surface" aria-labelledby="audio-title">
+      <div class="container audio-inner">
+        <a class="play-link" data-cta="home" href={site.externalDestinations.home} aria-label="Écouter le flux dans l’application"><Icon name="play" /></a>
+        <div class="audio-label"><h2 id="audio-title">{site.audio.title}</h2><p class="caption">{site.audio.example}</p></div>
+        <Waveform />
+        <p class="audio-caption">{site.audio.caption}</p>
+      </div>
+    </section>
+
+    <section id="actualites" class="news-section container editorial" aria-labelledby="news-title">
+      <div class="section-copy">
+        <h2 id="news-title">{site.news.heading.split(", ").map((part, index) => <span>{part}{index === 0 ? ", " : ""}</span>)}</h2>
+        <p>{site.news.description}</p>
+        <a class="text-link" data-cta="home" href={site.externalDestinations.home}>{site.news.cta}<Icon name="arrow" /></a>
+      </div>
+      <div class="news-preview surface" aria-labelledby="news-preview-title">
+        <h3 id="news-preview-title">{site.news.title}</h3>
+        <p class="caption">{site.news.example}</p>
+        <ul class="news-list">
+          {site.news.items.map((item) => <li><time>{item.time}</time><span>{item.category}</span><span>{item.title}</span></li>)}
+        </ul>
+      </div>
+    </section>
+
+    <section id="resume-audio" class="summary-band surface" aria-labelledby="summary-title">
+      <div class="container editorial summary-inner">
+        <div class="section-copy">
+          <h2 id="summary-title">{site.summary.heading.split(", ").map((part, index) => <span>{part}{index === 0 ? ", " : ""}</span>)}</h2>
+          <p>{site.summary.description}</p>
+        </div>
+        <div class="summary-preview">
+          <div class="summary-player">
+            <a class="play-link" data-cta="home" href={site.externalDestinations.home} aria-label="Écouter le résumé dans l’application"><Icon name="play" /></a>
+            <div><h3>{site.summary.title}</h3><p class="caption">{site.summary.example}</p></div>
+          </div>
+          <Waveform compact />
+          <a class="text-link" data-cta="home" href={site.externalDestinations.home}>{site.summary.cta}<Icon name="arrow" /></a>
+        </div>
+      </div>
+    </section>
+
+    <section id="calendrier" class="calendar-section container" aria-labelledby="calendar-title">
+      <div class="section-copy">
+        <h2 id="calendar-title">{site.calendar.heading}</h2>
+        <p>{site.calendar.description}</p>
+      </div>
+      <div class="calendar-preview">
+        <div class="calendar-heading">
+          <div><h3 id="calendar-table-title">{site.calendar.title}</h3><p class="caption">{site.calendar.example}</p></div>
+          <p class="calendar-range" id="calendar-range">{site.calendar.range}</p>
+        </div>
+        <!-- Le tableau conserve ses sept jours ; seul ce conteneur défile sur mobile. -->
+        <div class="calendar-scroll" role="region" aria-labelledby="calendar-table-title" aria-describedby="calendar-range" tabindex="0">
+          <table class="surface">
+            <caption class="sr-only">{site.calendar.title} — {site.calendar.example} — {site.calendar.range}</caption>
+            <thead><tr>{site.calendar.days.map((day) => <th scope="col">{day}<span>{site.calendar.month}</span></th>)}</tr></thead>
+            <tbody>{site.calendar.rows.map((row) => <tr>{row.map((cell) => <td>{cell}</td>)}</tr>)}</tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <SiteFooter homepage />
+</BaseLayout>

@@ -1,0 +1,10 @@
+[Unit]
+Description=Run the local FilFinance backup every day
+
+[Timer]
+OnCalendar=*-*-* 04:15:00
+RandomizedDelaySec=10m
+Persistent=true
+
+[Install]
+WantedBy=timers.target

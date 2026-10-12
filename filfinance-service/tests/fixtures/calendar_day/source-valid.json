@@ -1,0 +1,7 @@
+{
+  "localDay": "2026-06-15",
+  "source": "forex_factory_export",
+  "url": "https://nfs.faireconomy.media/ff_calendar_thisweek.json",
+  "status": 200,
+  "body": "<html><script>script payload</script><style>.hidden { display: none; }</style><body>Jun 15 2026 - Decision de taux de la BCE</body></html>"
+}

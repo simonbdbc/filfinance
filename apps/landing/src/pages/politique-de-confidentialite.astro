@@ -1,0 +1,35 @@
+---
+import LegalLayout from "../layouts/LegalLayout.astro";
+import { legalConfig as legal, legalPages } from "../config/legal.config";
+import { siteConfig as site } from "../config/site.config";
+---
+<LegalLayout page={legalPages[1]}>
+  <section><h2>Responsable et périmètre</h2>
+    <p>{legal.publisher.name}, {legal.publisher.registeredOffice}, est responsable des traitements liés à Fil Finance. Cette politique couvre le <a href={site.origin}>site public</a> et l’<a href={site.externalDestinations.home}>application associée</a>.</p>
+    <p>Pour toute question ou demande relative à vos données : <a href={`mailto:${legal.publisher.privacyContact}`}>{legal.publisher.privacyContact}</a>.</p>
+  </section>
+  <section><h2>Données utilisées et finalités</h2><ul>
+    <li><strong>Compte et sécurité :</strong> adresse e-mail, nom renseigné, mot de passe protégé par le système d’authentification, état de vérification de l’adresse e-mail, rôle, dates de création et de mise à jour du compte et informations de session. L’adresse e-mail et le mot de passe sont nécessaires pour créer un compte et accéder aux fonctionnalités protégées ; le nom peut être laissé vide.</li>
+    <li><strong>Préférences :</strong> thème d’affichage, voix de synthèse préférée et filtres du calendrier, afin de conserver les réglages choisis.</li>
+    <li><strong>E-mails de service :</strong> adresse et informations nécessaires à la vérification de l’adresse e-mail et à la réinitialisation du mot de passe.</li>
+    <li><strong>Support :</strong> adresse de contact et contenu des messages que vous nous transmettez pour traiter votre demande.</li>
+    <li><strong>Fonctionnement et protection :</strong> informations techniques de connexion, notamment adresse IP et caractéristiques du navigateur selon les services sollicités, ainsi que journaux d’erreurs et de sécurité.</li>
+  </ul><p>Fil Finance présente des actualités financières et des contenus audio. Le service ne vous demande pas de connecter un compte de courtage ni de fournir votre portefeuille pour utiliser ces fonctionnalités.</p></section>
+  <section><h2>Bases des traitements</h2>
+    <p>La gestion du compte, l’accès aux fonctionnalités et les communications de service reposent sur l’exécution du service demandé. La sécurité, la prévention des abus et le traitement des demandes de support reposent sur l’intérêt légitime de l’éditeur à protéger et maintenir le service. Les traitements imposés par la loi reposent sur les obligations correspondantes.</p>
+    <p>La consultation de cette politique ne constitue pas un consentement général à des usages facultatifs de vos données.</p>
+  </section>
+  <section><h2>Destinataires</h2>
+    <p>Les données sont accessibles à l’éditeur et aux personnes habilitées à assurer l’exploitation et le support. Le compte et les préférences sont gérés par les services Better Auth et PostgreSQL exploités sur l’infrastructure de l’éditeur. Bunny assure la diffusion des fichiers publics et des contenus ; la messagerie de service utilise l’infrastructure de messagerie et son relais Brevo.</p>
+    <p>La localisation de l’adresse sociale d’un prestataire ne signifie pas que toutes les données y sont stockées. Pour des précisions sur les prestataires, les lieux de traitement et les garanties applicables, contactez-nous.</p>
+  </section>
+  <section><h2>Conservation</h2>
+    <p data-legal-field="PUBLIC_LEGAL_DATA_RETENTION">{legal.publisher.dataRetention}</p>
+    <p>Les préférences stockées uniquement sur votre appareil y restent jusqu’à leur modification ou à l’effacement du stockage de l’application. Les sessions cessent d’être utilisables à leur expiration ou à leur révocation. Les échanges de support sont conservés pour le traitement et le suivi des demandes ; les journaux techniques servent au diagnostic et à la protection du service.</p>
+  </section>
+  <section><h2>Vos droits</h2>
+    <p>Vous pouvez demander l’accès, la rectification ou l’effacement de vos données, ainsi que la limitation de leur traitement. Selon la base du traitement et votre situation, vous disposez également de droits d’opposition et de portabilité.</p>
+    <p>Adressez votre demande à <a href={`mailto:${legal.publisher.privacyContact}`}>{legal.publisher.privacyContact}</a>. Des éléments permettant de vérifier votre identité peuvent être demandés lorsque cela est nécessaire. Vous pouvez aussi adresser une réclamation à la <a href="https://www.cnil.fr/fr/plaintes">CNIL</a>.</p>
+  </section>
+  <section><h2>Stockages sur votre appareil</h2><p>La page <a href={legalPages[3].path}>Cookies et stockages techniques</a> décrit les sessions et préférences utilisées par le site public et l’application.</p></section>
+</LegalLayout>

@@ -1,0 +1,170 @@
+services:
+  filfinance-postgres:
+    container_name: ${FILFINANCE_POSTGRES_CONTAINER_NAME:-filfinance_postgres}
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-filfinance}
+      POSTGRES_USER: ${POSTGRES_USER:-filfinance_owner}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-replace-with-postgres-owner-password}
+      FILFINANCE_AUTH_DB_USER: ${FILFINANCE_AUTH_DB_USER:-filfinance_auth}
+      FILFINANCE_AUTH_DB_PASSWORD: ${FILFINANCE_AUTH_DB_PASSWORD:-replace-with-auth-db-password}
+      FILFINANCE_APP_DB_USER: ${FILFINANCE_APP_DB_USER:-filfinance_app}
+      FILFINANCE_APP_DB_PASSWORD: ${FILFINANCE_APP_DB_PASSWORD:-replace-with-app-db-password}
+    networks:
+      - filfinance_internal
+    volumes:
+      - filfinance_postgres_data:/var/lib/postgresql/data
+      - ./filfinance-auth/docker/postgres-init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U \"$${POSTGRES_USER}\" -d \"$${POSTGRES_DB}\""]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  filfinance-auth:
+    container_name: ${FILFINANCE_AUTH_CONTAINER_NAME:-filfinance_auth}
+    build:
+      context: ./filfinance-auth
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    depends_on:
+      filfinance-postgres:
+        condition: service_healthy
+    environment:
+      NODE_ENV: ${NODE_ENV:-production}
+      PORT: 3000
+      BETTER_AUTH_URL: ${BETTER_AUTH_URL:-http://localhost:3000}
+      BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET:-dev-only-change-me}
+      BETTER_AUTH_JWT_AUDIENCE: ${BETTER_AUTH_JWT_AUDIENCE:-${BETTER_AUTH_URL:-http://localhost:3000}}
+      BETTER_AUTH_JWT_EXPIRATION: ${BETTER_AUTH_JWT_EXPIRATION:-15m}
+      BETTER_AUTH_REQUIRE_EMAIL_VERIFICATION: ${BETTER_AUTH_REQUIRE_EMAIL_VERIFICATION:-false}
+      BETTER_AUTH_TRUSTED_ORIGINS: ${BETTER_AUTH_TRUSTED_ORIGINS:-filfinance://,http://localhost:8052,http://localhost:3000,exp://,exp://**,exp://192.168.*.*:*/**}
+      DATABASE_URL: ${DATABASE_URL:-postgresql://filfinance_app:replace-with-app-db-password@filfinance-postgres:5432/filfinance}
+      AUTH_DATABASE_URL: ${AUTH_DATABASE_URL:-postgresql://filfinance_auth:replace-with-auth-db-password@filfinance-postgres:5432/filfinance}
+      APP_WEB_URL: ${APP_WEB_URL:-http://localhost:8052}
+      EXPO_SCHEME: ${EXPO_SCHEME:-filfinance}
+      ADMIN_EMAIL_TO_PROMOTE: ${ADMIN_EMAIL_TO_PROMOTE:-}
+      SMTP_HOST: ${SMTP_HOST:-}
+      SMTP_PORT: ${SMTP_PORT:-587}
+      SMTP_SECURE: ${SMTP_SECURE:-false}
+      SMTP_REQUIRE_TLS: ${SMTP_REQUIRE_TLS:-true}
+      SMTP_USER: ${SMTP_USER:-}
+      SMTP_PASSWORD: ${SMTP_PASSWORD:-}
+      SMTP_FROM_EMAIL: ${SMTP_FROM_EMAIL:-}
+      SMTP_FROM_NAME: ${SMTP_FROM_NAME:-}
+    networks:
+      - filfinance_internal
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3000/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+
+  # Aucun port n'est publie: Redis reste seulement accessible aux replicas Rust du compose.
+  filfinance-redis:
+    container_name: ${FILFINANCE_REDIS_CONTAINER_NAME:-filfinance_redis}
+    image: redis:8.2-alpine
+    restart: unless-stopped
+    command: ["redis-server", "--appendonly", "yes", "--save", "60", "1000"]
+    networks:
+      - filfinance_internal
+    volumes:
+      - filfinance_redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  filfinance-service:
+    container_name: ${FILFINANCE_SERVICE_CONTAINER_NAME:-filfinance_service}
+    build:
+      context: ./filfinance-service
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    # Le binaire Rust borne son drain global a 10 s; Docker garde une marge avant SIGKILL.
+    stop_grace_period: 15s
+    depends_on:
+      filfinance-auth:
+        condition: service_healthy
+      filfinance-redis:
+        condition: service_healthy
+    environment:
+      NEWS_LISTEN_ADDR: 0.0.0.0:8088
+      NEWS_DATABASE_URL: sqlite://data/news.db
+      NEWS_DATA_AUDIT_RETENTION_DAYS: ${NEWS_DATA_AUDIT_RETENTION_DAYS:-7}
+      NEWS_LIVE_FANOUT_ENABLED: ${NEWS_LIVE_FANOUT_ENABLED:-false}
+      NEWS_LIVE_REDIS_URL: ${NEWS_LIVE_REDIS_URL:-redis://filfinance-redis:6379/0}
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    networks:
+      - filfinance_internal
+    volumes:
+      - ${FILFINANCE_SERVICE_DATA_DIR:-./volumes/service/data}:/app/data
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://127.0.0.1:8088/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
+
+  financialjuice-browser-collector:
+    container_name: ${FILFINANCE_BROWSER_COLLECTOR_CONTAINER_NAME:-financialjuice_browser_collector}
+    build:
+      context: ./financialjuice-browser-collector
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    init: true
+    shm_size: "1gb"
+    depends_on:
+      filfinance-service:
+        condition: service_healthy
+    environment:
+      NEWS_FINANCIAL_JUICE_BROWSER_ENABLED: ${NEWS_FINANCIAL_JUICE_BROWSER_ENABLED:-true}
+      NEWS_FINANCIAL_JUICE_BROWSER_BACKEND_URL: ${NEWS_FINANCIAL_JUICE_BROWSER_BACKEND_URL:-http://filfinance-service:8088}
+      NEWS_FINANCIAL_JUICE_BROWSER_TARGETS: ${NEWS_FINANCIAL_JUICE_BROWSER_TARGETS:-}
+      NEWS_FINANCIAL_JUICE_BROWSER_BACKEND_URL_PROD: ${NEWS_FINANCIAL_JUICE_BROWSER_BACKEND_URL_PROD:-http://filfinance-service:8088}
+      NEWS_FINANCIAL_JUICE_BROWSER_INGEST_TOKEN_PROD: ${NEWS_FINANCIAL_JUICE_BROWSER_INGEST_TOKEN_PROD:-}
+      NEWS_FINANCIAL_JUICE_BROWSER_BACKEND_URL_DEV: ${NEWS_FINANCIAL_JUICE_BROWSER_BACKEND_URL_DEV:-}
+      NEWS_FINANCIAL_JUICE_BROWSER_INGEST_TOKEN_DEV: ${NEWS_FINANCIAL_JUICE_BROWSER_INGEST_TOKEN_DEV:-}
+      NEWS_FINANCIAL_JUICE_BROWSER_HOME_URL: ${NEWS_FINANCIAL_JUICE_BROWSER_HOME_URL:-https://www.financialjuice.com/home}
+      NEWS_FINANCIAL_JUICE_BROWSER_INGEST_TOKEN: ${NEWS_FINANCIAL_JUICE_BROWSER_INGEST_TOKEN}
+      NEWS_FINANCIAL_JUICE_BROWSER_HEADLESS: ${NEWS_FINANCIAL_JUICE_BROWSER_HEADLESS:-false}
+      NEWS_FINANCIAL_JUICE_BROWSER_POLL_INTERVAL_MS: ${NEWS_FINANCIAL_JUICE_BROWSER_POLL_INTERVAL_MS:-5000}
+      NEWS_FINANCIAL_JUICE_BROWSER_REQUEST_TIMEOUT_MS: ${NEWS_FINANCIAL_JUICE_BROWSER_REQUEST_TIMEOUT_MS:-15000}
+      NEWS_FINANCIAL_JUICE_BROWSER_RATE_LIMIT_BACKOFF_MS: ${NEWS_FINANCIAL_JUICE_BROWSER_RATE_LIMIT_BACKOFF_MS:-60000}
+      NEWS_FINANCIAL_JUICE_BROWSER_MAX_BATCH_SIZE: ${NEWS_FINANCIAL_JUICE_BROWSER_MAX_BATCH_SIZE:-100}
+      NEWS_FINANCIAL_JUICE_BROWSER_USER_DATA_DIR: /app/data/financialjuice-browser-profile
+      NEWS_FINANCIAL_JUICE_EMAIL: ${NEWS_FINANCIAL_JUICE_EMAIL}
+      NEWS_FINANCIAL_JUICE_PASSWORD: ${NEWS_FINANCIAL_JUICE_PASSWORD}
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    networks:
+      - filfinance_internal
+    volumes:
+      - financialjuice_browser_data:/app/data
+    # The collector has no listener of its own: PID 1 is the long-running
+    # Playwright process. This check distinguishes a live idle fallback from a
+    # stopped container without exposing a port.
+    healthcheck:
+      test: ["CMD", "node", "-e", "process.kill(1, 0)"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
+
+networks:
+  filfinance_internal:
+    name: ${FILFINANCE_INTERNAL_NETWORK_NAME:-filfinance_internal}
+
+volumes:
+  filfinance_postgres_data:
+    name: ${FILFINANCE_POSTGRES_DATA_VOLUME_NAME:-filfinance_postgres_data}
+
+  financialjuice_browser_data:
+    name: ${FILFINANCE_BROWSER_DATA_VOLUME_NAME:-financialjuice_browser_data}
+
+  filfinance_redis_data:
+    name: ${FILFINANCE_REDIS_DATA_VOLUME_NAME:-filfinance_redis_data}

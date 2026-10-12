@@ -1,0 +1,24 @@
+---
+import LegalLayout from "../layouts/LegalLayout.astro";
+import { legalConfig as legal, legalPages } from "../config/legal.config";
+---
+<LegalLayout page={legalPages[0]}>
+  <section><h2>Éditeur et publication</h2><dl>
+    <div><dt>Éditeur</dt><dd data-legal-field="PUBLIC_LEGAL_ENTITY_NAME">{legal.publisher.name}</dd></div>
+    <div><dt>Adresse professionnelle</dt><dd data-legal-field="PUBLIC_LEGAL_REGISTERED_OFFICE">{legal.publisher.registeredOffice}</dd></div>
+    <div><dt>Responsable de publication</dt><dd data-legal-field="PUBLIC_LEGAL_PUBLICATION_DIRECTOR">{legal.publisher.publicationDirector}</dd></div>
+    <div><dt>Contact</dt><dd><a data-legal-field="PUBLIC_LEGAL_PRIVACY_CONTACT" href={`mailto:${legal.publisher.privacyContact}`}>{legal.publisher.privacyContact}</a></dd></div>
+  </dl></section>
+  <section><h2>Hébergement</h2>
+    <p>Le site public et les fichiers de l’application sont hébergés et diffusés par {legal.hosting.name}, via les services Bunny Storage et CDN.</p>
+    <p>{legal.hosting.address}. Site : <a href={legal.hosting.website}>bunny.net</a>. Contact : <a href={`mailto:${legal.hosting.contact}`}>{legal.hosting.contact}</a>.</p>
+    <p>Les services d’authentification et les données de l’application sont exploités séparément sur l’infrastructure serveur de l’éditeur.</p>
+  </section>
+  <section><h2>Propriété intellectuelle</h2>
+    <p>La marque Fil Finance, sa présentation et les contenus propres au service sont protégés par les droits applicables. Les actualités provenant de tiers restent soumises aux droits de leurs auteurs et éditeurs.</p>
+    <p>L’accès au service ne confère aucun droit de redistribution ou d’exploitation commerciale de ses contenus sans autorisation des titulaires concernés.</p>
+  </section>
+  <section><h2>Documents associés</h2>
+    <p>Consultez les <a href={legalPages[2].path}>conditions générales d’utilisation</a> et la <a href={legalPages[1].path}>politique de confidentialité</a> pour connaître les règles du service et le traitement des données personnelles.</p>
+  </section>
+</LegalLayout>

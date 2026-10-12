@@ -1,0 +1,232 @@
+/* Les rôles sont identiques dans les deux thèmes ; la palette documentée fait foi. */
+:root {
+  --color-background: #F1E5D3;
+  --color-surface: #FBF5EB;
+  --color-text: #382E26;
+  --color-text-secondary: #796B5D;
+  --color-accent: #7B5E45;
+  --color-button: #7B5E45;
+  --color-button-text: #FBF5EB;
+  --serif: Georgia, "Times New Roman", Times, serif;
+  --sans: Arial, Helvetica, sans-serif;
+  --container: 1180px;
+  color-scheme: light;
+  font-family: var(--sans);
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+}
+:root[data-theme="dark"] {
+  --color-background: #111827;
+  --color-surface: #192535;
+  --color-text: #FBF5EB;
+  --color-text-secondary: #F1E5D3;
+  --color-accent: #8B5E3C;
+  --color-button: #714426;
+  --color-button-text: #FBF5EB;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body { margin: 0; background: var(--color-background); color: var(--color-text); font-family: var(--sans); line-height: 1.5; }
+button, a { -webkit-tap-highlight-color: transparent; }
+button { font: inherit; }
+button, a, summary { touch-action: manipulation; }
+a { color: inherit; text-underline-offset: .25em; }
+a:hover { text-decoration-thickness: 2px; }
+svg { display: block; flex-shrink: 0; }
+h1, h2, h3, p { margin: 0; }
+h1, h2, h3 { font-family: var(--serif); }
+h2 { font-size: clamp(2.25rem, 3.8vw, 3.5rem); line-height: 1.08; letter-spacing: -.04em; font-weight: 400; }
+h3 { font-weight: 400; }
+:where(a, button, summary, [tabindex]):focus-visible { outline: 3px solid var(--color-text); outline-offset: 3px; }
+[hidden] { display: none !important; }
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; border: 0; }
+.skip-link { position: fixed; z-index: 20; top: 12px; left: 16px; padding: 12px 18px; background: var(--color-surface); transform: translateY(-200%); }
+.skip-link:focus { transform: none; }
+.container { width: min(calc(100% - 48px), var(--container)); margin-inline: auto; }
+/* Les séparateurs sont décoratifs ; les libellés et le focus assurent la lisibilité. */
+.surface { background: var(--color-surface); }
+.site-header, .site-footer, .audio-band { border-color: color-mix(in srgb, var(--color-accent) 25%, transparent); }
+.site-header { border-bottom-style: solid; border-bottom-width: 1px; }
+.header-inner { min-height: 100px; display: flex; align-items: center; gap: 26px; }
+.brand { display: inline-flex; min-height: 44px; align-items: center; gap: 12px; font: 600 2.4rem/1 var(--serif); letter-spacing: -.045em; white-space: nowrap; text-decoration: none; }
+.brand-icon { width: 1em; height: 1.15em; color: var(--color-accent); }
+.desktop-nav { margin-left: auto; }
+nav ul { list-style: none; margin: 0; padding: 0; display: flex; align-items: center; gap: 22px; }
+nav a { display: inline-flex; min-height: 44px; align-items: center; font-size: 15px; text-decoration: none; white-space: nowrap; }
+nav a:hover { text-decoration: underline; }
+.header-actions { display: flex; align-items: center; gap: 12px; }
+.button { min-height: 52px; display: inline-flex; align-items: center; justify-content: center; border: 1px solid transparent; padding: 12px 28px; border-radius: 5px; font-weight: 600; text-decoration: none; }
+.button:hover { text-decoration: underline; }
+.button-primary { background: var(--color-button); color: var(--color-button-text); font-size: 22px; min-height: 64px; padding-inline: 40px; }
+.button-outline { background: var(--color-surface); border-color: var(--color-text); font-size: 16px; white-space: nowrap; padding: 10px 22px; }
+.theme-slot { width: 44px; min-height: 44px; }
+.theme-toggle { width: 44px; height: 44px; display: grid; place-items: center; padding: 0; border-radius: 50%; border: 1px solid transparent; background: transparent; color: var(--color-text); cursor: pointer; }
+.theme-toggle:hover { background: var(--color-surface); border-color: var(--color-text); }
+.theme-sun, :root[data-theme="dark"] .theme-moon { display: none; }
+:root[data-theme="dark"] .theme-sun { display: block; }
+.mobile-menu { display: none; }
+/* L'introduction conserve deux lignes éditoriales, sans image de fond ni texte rasterisé. */
+.hero { padding-block: 62px 66px; text-align: center; }
+.eyebrow { font-size: 14px; letter-spacing: .2em; font-weight: 600; margin-bottom: 32px; }
+h1 { font-size: clamp(2.65rem, 6.6vw, 5.9rem); line-height: 1.04; font-weight: 400; letter-spacing: -.045em; }
+h1 em { display: block; font-weight: 400; }
+.hero-description { font-size: 26px; line-height: 1.5; margin-block: 36px 34px; }
+.hero-description span { display: block; }
+.offer { padding-block: 32px 52px; text-align: center; }
+.offer > h2 { margin-bottom: 46px; }
+.services { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.service { padding: 4px 16px 8px; }
+.service + .service { border-left: 1px solid color-mix(in srgb, var(--color-accent) 25%, transparent); }
+.service-icon { display: flex; justify-content: center; height: 76px; margin-bottom: 24px; color: var(--color-accent); }
+.service-icon svg { width: 68px; height: 72px; }
+.service h3 { font-size: 28px; line-height: 1.15; letter-spacing: -.025em; margin-bottom: 16px; }
+.service p { font-size: 21px; line-height: 1.4; text-wrap: pretty; }
+.audio-band { border-block-style: solid; border-block-width: 1px; padding-block: 30px; }
+.audio-inner { display: grid; grid-template-columns: 88px 205px minmax(80px, 1fr) 200px; align-items: center; gap: 24px; }
+.play-link { display: grid; place-items: center; width: 88px; height: 88px; border-radius: 50%; color: var(--color-button-text); background: var(--color-button); }
+.play-link svg { width: 38px; height: 38px; }
+.play-link:hover { outline: 1px solid var(--color-text); outline-offset: 4px; }
+.audio-label h2, .summary-player h3 { font: 600 20px/1.3 var(--sans); letter-spacing: -.02em; }
+.caption { font-size: 16px; line-height: 1.4; margin-top: 4px; }
+/* Le taupe est limité au crème ; sur l'avoine, les petits textes gardent le brun principal. */
+.surface .caption, .surface .audio-caption { color: var(--color-text-secondary); }
+.audio-caption { font-size: 16px; border-left: 1px solid color-mix(in srgb, var(--color-accent) 25%, transparent); padding-left: 24px; min-height: 56px; display: flex; align-items: center; }
+.waveform { width: 100%; height: 76px; stroke: var(--color-accent); stroke-width: 1.65; fill: none; }
+.editorial { display: grid; grid-template-columns: .85fr 1.15fr; gap: 64px; align-items: center; }
+.news-section { padding-block: 60px; }
+.section-copy h2 { max-width: 12ch; }
+.section-copy h2:has(span) { max-width: none; }
+.section-copy h2 > span { display: block; }
+.section-copy p { margin-top: 24px; font-size: 22px; line-height: 1.4; max-width: 35ch; }
+.surface .section-copy p { color: var(--color-text-secondary); }
+.text-link { display: inline-flex; gap: 12px; align-items: center; min-height: 44px; margin-top: 16px; font-weight: 600; font-size: 18px; }
+.text-link svg { width: 22px; height: 22px; }
+.news-preview { padding: 22px 26px 14px; border-radius: 3px; }
+.news-preview h3, .calendar-heading h3 { font-size: 23px; line-height: 1.2; letter-spacing: -.025em; }
+.news-list { list-style: none; padding: 0; margin: 16px 0 0; }
+.news-list li { display: grid; grid-template-columns: 60px .95fr 1.3fr; gap: 16px; padding-block: 22px; font-size: 18px; line-height: 1.35; border-top: 1px solid color-mix(in srgb, var(--color-accent) 25%, transparent); }
+.news-list li:last-child { border-bottom: 1px solid color-mix(in srgb, var(--color-accent) 25%, transparent); }
+.news-list time { font-variant-numeric: tabular-nums; }
+.summary-band { padding-block: 48px; }
+.summary-inner { grid-template-columns: 1fr 1fr; }
+.summary-preview { border-left: 1px solid color-mix(in srgb, var(--color-accent) 25%, transparent); padding-left: 64px; }
+.summary-player { display: flex; align-items: center; gap: 24px; }
+.summary-preview > .waveform { margin-top: 18px; margin-left: 112px; width: calc(100% - 112px); height: 65px; }
+.calendar-section { display: grid; grid-template-columns: .7fr 2fr; gap: 48px; padding-block: 72px; align-items: start; }
+.calendar-section .section-copy { padding-top: 14px; }
+.calendar-section h2 { font-size: clamp(2.25rem, 3.5vw, 3.3rem); }
+.calendar-heading { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 16px; }
+.calendar-range { font-size: 15px; white-space: nowrap; }
+.calendar-preview { min-width: 0; }
+.calendar-scroll { overflow-x: auto; }
+table { border-collapse: collapse; table-layout: fixed; width: 100%; min-width: 720px; text-align: left; font-size: 14px; line-height: 1.35; }
+th, td { border-inline: 1px solid color-mix(in srgb, var(--color-accent) 25%, transparent); padding: 16px 14px; vertical-align: top; overflow-wrap: normal; }
+th { font-weight: 600; border-block: 1px solid color-mix(in srgb, var(--color-accent) 25%, transparent); }
+th span { display: block; font-weight: 400; color: var(--color-text-secondary); margin-top: 5px; }
+td { padding-block: 20px 10px; height: 60px; }
+tbody tr:last-child td { border-bottom: 1px solid color-mix(in srgb, var(--color-accent) 25%, transparent); padding-bottom: 25px; }
+.site-footer { border-top-style: solid; border-top-width: 1px; }
+.footer-inner { min-height: 104px; display: flex; align-items: center; gap: 24px; }
+.footer-brand { font-size: 1.9rem; gap: 10px; }
+.copyright { font-size: 12px; }
+.footer-inner nav { margin-left: auto; }
+.footer-inner nav ul { gap: 20px; }
+.footer-inner nav a { font-size: 13px; }
+/* La tablette conserve la lecture naturelle, sans forcer des colonnes trop étroites. */
+@media (max-width: 1199px) and (min-width: 1024px) {
+  .header-inner { gap: 16px; }
+  .brand { font-size: 2rem; }
+  .desktop-nav ul { gap: 14px; }
+  .desktop-nav a { font-size: 14px; }
+  .button-outline { padding-inline: 16px; }
+  .editorial { gap: 40px; }
+  .summary-preview { padding-left: 36px; }
+  .calendar-section { gap: 28px; grid-template-columns: .65fr 2fr; }
+  .footer-inner { flex-wrap: wrap; gap: 12px 24px; padding-block: 20px; }
+  .footer-inner nav { margin-left: 0; }
+}
+@media (max-width: 1023px) {
+  .header-inner { min-height: 84px; justify-content: space-between; }
+  .desktop-nav, .header-login { display: none; }
+  .mobile-menu { display: block; }
+  .mobile-menu summary { display: grid; place-items: center; width: 44px; height: 44px; cursor: pointer; list-style: none; }
+  .mobile-menu summary::-webkit-details-marker { display: none; }
+  .mobile-menu nav { position: absolute; right: 24px; top: 76px; z-index: 10; background: var(--color-surface); border: 1px solid var(--color-text); padding: 16px 24px; border-radius: 4px; }
+  .mobile-menu ul { flex-direction: column; align-items: stretch; gap: 4px; }
+  .mobile-menu a { width: 100%; }
+  .hero { padding-block: 52px; }
+  .services { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 32px 0; }
+  .service { padding-inline: 32px; }
+  .service:nth-child(odd) { border-left: 0; }
+  .editorial { grid-template-columns: 1fr; gap: 36px; }
+  .section-copy h2 { max-width: 22ch; }
+  .section-copy p { max-width: 52ch; }
+  .audio-inner { grid-template-columns: 72px 205px minmax(80px, 1fr); gap: 20px; }
+  .play-link { width: 72px; height: 72px; }
+  .audio-caption { grid-column: 2 / -1; border-left: 0; padding-left: 0; min-height: 0; }
+  .summary-preview { border-left: 0; padding-left: 0; max-width: 580px; }
+  .summary-preview > .waveform { margin-left: 96px; width: calc(100% - 96px); }
+  .calendar-section { grid-template-columns: 1fr; gap: 36px; padding-block: 52px; }
+  .calendar-section .section-copy { padding-top: 0; }
+  .footer-inner { flex-wrap: wrap; gap: 12px 24px; padding-block: 28px; }
+  .footer-inner nav { flex-basis: 100%; margin-left: 0; }
+}
+@media (max-width: 767px) {
+  .container { width: calc(100% - 32px); }
+  .header-inner { min-height: 76px; gap: 8px; }
+  .brand { font-size: 1.8rem; gap: 8px; }
+  .header-actions { gap: 4px; }
+  .mobile-menu nav { top: 68px; right: 16px; }
+  .hero { padding-block: 44px; }
+  .eyebrow { font-size: 11px; letter-spacing: .14em; margin-bottom: 24px; }
+  h1 { font-size: clamp(2.65rem, 7.5vw, 4.5rem); line-height: 1.08; }
+  h1 em { margin-top: 8px; }
+  .hero-description { font-size: 18px; margin-block: 26px; }
+  .button-primary { min-height: 56px; font-size: 20px; padding-inline: 28px; }
+  .service h3 { font-size: 25px; }
+  .service p { font-size: 18px; }
+  .hero-description span + span { margin-top: 8px; }
+  .offer { padding-block: 22px 40px; }
+  .offer > h2 { margin-bottom: 36px; }
+  .audio-inner { grid-template-columns: 64px 1fr; gap: 16px; }
+  .audio-inner > .waveform { grid-column: 1 / -1; grid-row: 2; height: 60px; }
+  .audio-caption { grid-column: 1 / -1; }
+  .play-link { width: 64px; height: 64px; }
+  .play-link svg { width: 32px; height: 32px; }
+  .audio-label h2, .summary-player h3 { font-size: 17px; }
+  .caption { font-size: 14px; }
+  .news-section { padding-block: 44px; }
+  .section-copy p { font-size: 18px; margin-top: 20px; }
+  .news-preview { padding: 20px 16px; }
+  .news-list li { grid-template-columns: 52px 1fr; gap: 6px 12px; font-size: 14px; }
+  .news-list li > span:last-child { grid-column: 2; }
+  .news-list time { grid-row: span 2; }
+  .summary-band { padding-block: 40px; }
+  .summary-player { gap: 18px; }
+  .summary-preview > .waveform { margin-left: 0; width: 100%; }
+  .calendar-heading { flex-direction: column; align-items: flex-start; gap: 12px; }
+  .calendar-heading h3 { font-size: 21px; }
+  .footer-brand { font-size: 1.7rem; }
+  .footer-inner { flex-direction: column; align-items: flex-start; }
+  .footer-inner nav ul { flex-wrap: wrap; gap: 4px 20px; }
+}
+@media (max-width: 639px) {
+  .services { grid-template-columns: 1fr; gap: 28px; }
+  .service { padding: 0 16px 28px; }
+  .service + .service { border-left: 0; }
+  .service:not(:last-child) { border-bottom: 1px solid color-mix(in srgb, var(--color-accent) 25%, transparent); }
+  .service-icon { margin-bottom: 16px; }
+  .service h3 { max-width: 20ch; margin-inline: auto; }
+  .service p { max-width: 30ch; margin-inline: auto; }
+}
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after { transition: none !important; animation: none !important; }
+}
+
+/* Les liens légaux restent présents sur chaque page, sans alourdir le menu principal. */
+.legal-navigation { padding-bottom: 24px; }
+.legal-navigation ul { flex-wrap: wrap; gap: 4px 24px; }
+.legal-navigation a { font-size: 14px; text-decoration: underline; }
+.legal-navigation a[aria-current="page"] { font-weight: 700; }

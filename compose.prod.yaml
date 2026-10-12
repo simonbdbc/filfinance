@@ -1,0 +1,75 @@
+services:
+  filfinance-gateway:
+    container_name: ${FILFINANCE_GATEWAY_CONTAINER_NAME:-filfinance_gateway}
+    image: nginx:1.30.3-alpine
+    restart: unless-stopped
+    depends_on:
+      filfinance-auth:
+        condition: service_healthy
+      filfinance-service:
+        condition: service_healthy
+    ports:
+      - "${FILFINANCE_BACKEND_HOST_BIND:-127.0.0.1}:${FILFINANCE_BACKEND_PORT:-8088}:8080"
+    networks:
+      - filfinance_internal
+      # This gateway provides the loopback origin path. Auth and Rust also
+      # join traefik_network below and expose direct routes when enabled.
+      - traefik_network
+    volumes:
+      - ./deploy/nginx/filfinance-gateway.conf:/etc/nginx/conf.d/default.conf:ro
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q -O /dev/null http://127.0.0.1:8080/health && wget -q -O - http://127.0.0.1:8080/api/auth/jwks | grep -q '\"keys\"'"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
+
+  filfinance-auth:
+    env_file:
+      - ${FILFINANCE_ENV_FILE:-.env.server}
+    environment:
+      PORT: 3000
+    networks:
+      - filfinance_internal
+      - traefik_network
+    labels:
+      - "traefik.enable=${FILFINANCE_AUTH_TRAEFIK_ENABLED:-true}"
+      - "traefik.http.routers.${FILFINANCE_AUTH_TRAEFIK_ROUTER_NAME:-filfinance-auth}.rule=(Host(`${FILFINANCE_API_HOST:-api.filfinance.fr}`) || Host(`${FILFINANCE_ORIGIN_HOST:-api.filfinance.fr}`)) && (PathPrefix(`/api/auth`) || Path(`/api/me`))"
+      - "traefik.http.routers.${FILFINANCE_AUTH_TRAEFIK_ROUTER_NAME:-filfinance-auth}.priority=200"
+      - "traefik.http.routers.${FILFINANCE_AUTH_TRAEFIK_ROUTER_NAME:-filfinance-auth}.entrypoints=websecure"
+      - "traefik.http.routers.${FILFINANCE_AUTH_TRAEFIK_ROUTER_NAME:-filfinance-auth}.tls=true"
+      - "traefik.http.routers.${FILFINANCE_AUTH_TRAEFIK_ROUTER_NAME:-filfinance-auth}.tls.certresolver=${FILFINANCE_TRAEFIK_CERT_RESOLVER:-lets_encrypt}"
+      - "traefik.http.routers.${FILFINANCE_AUTH_TRAEFIK_ROUTER_NAME:-filfinance-auth}.middlewares=default-headers@file"
+      - "traefik.http.routers.${FILFINANCE_AUTH_TRAEFIK_ROUTER_NAME:-filfinance-auth}.service=${FILFINANCE_AUTH_TRAEFIK_SERVICE_NAME:-filfinance-auth}"
+      - "traefik.http.services.${FILFINANCE_AUTH_TRAEFIK_SERVICE_NAME:-filfinance-auth}.loadbalancer.server.port=3000"
+
+  filfinance-service:
+    env_file:
+      - ${FILFINANCE_ENV_FILE:-.env.server}
+    environment:
+      FILFINANCE_ENV_FILE: ""
+      NEWS_SERVER_ENV: production
+      NEWS_AUTH_ENABLED: "true"
+    volumes:
+      - ./volumes/service/data:/app/data
+    networks:
+      - filfinance_internal
+      - traefik_network
+    labels:
+      - "traefik.enable=${FILFINANCE_TRAEFIK_ENABLED:-true}"
+      - "traefik.http.routers.${FILFINANCE_TRAEFIK_ROUTER_NAME:-filfinance-api}.rule=Host(`${FILFINANCE_API_HOST:-api.filfinance.fr}`) || Host(`${FILFINANCE_ORIGIN_HOST:-api.filfinance.fr}`)"
+      - "traefik.http.routers.${FILFINANCE_TRAEFIK_ROUTER_NAME:-filfinance-api}.priority=10"
+      - "traefik.http.routers.${FILFINANCE_TRAEFIK_ROUTER_NAME:-filfinance-api}.entrypoints=websecure"
+      - "traefik.http.routers.${FILFINANCE_TRAEFIK_ROUTER_NAME:-filfinance-api}.tls=true"
+      - "traefik.http.routers.${FILFINANCE_TRAEFIK_ROUTER_NAME:-filfinance-api}.tls.certresolver=${FILFINANCE_TRAEFIK_CERT_RESOLVER:-lets_encrypt}"
+      - "traefik.http.routers.${FILFINANCE_TRAEFIK_ROUTER_NAME:-filfinance-api}.middlewares=default-headers@file"
+      - "traefik.http.routers.${FILFINANCE_TRAEFIK_ROUTER_NAME:-filfinance-api}.service=${FILFINANCE_TRAEFIK_SERVICE_NAME:-filfinance-service}"
+      - "traefik.http.services.${FILFINANCE_TRAEFIK_SERVICE_NAME:-filfinance-service}.loadbalancer.server.port=8088"
+
+  financialjuice-browser-collector:
+    volumes:
+      - ./volumes/financialjuice-browser-collector/data:/app/data
+
+networks:
+  traefik_network:
+    external: true

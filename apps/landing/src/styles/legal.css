@@ -1,0 +1,22 @@
+/* Les documents conservent les tokens et le thème de la landing. */
+.legal-main { padding-block: 24px 72px; }
+.legal-back { margin-block: 0 32px; }
+.legal-content { max-width: 780px; margin-inline: auto; overflow-wrap: anywhere; font-size: 18px; line-height: 1.7; }
+.legal-content header { padding-block: 16px 28px; border-bottom: 1px solid color-mix(in srgb, var(--color-accent) 25%, transparent); }
+.legal-content .eyebrow { margin-bottom: 18px; }
+.legal-content h1 { font-size: clamp(2.4rem, 5vw, 4rem); line-height: 1.12; }
+.legal-date { margin-top: 24px; font-size: 15px; }
+.legal-content section { margin-top: 36px; }
+.legal-content h2 { font-size: clamp(1.65rem, 3vw, 2.1rem); line-height: 1.2; margin-bottom: 16px; }
+.legal-content p + p { margin-top: 16px; }
+.legal-content ul { padding-left: 24px; }
+.legal-content li + li { margin-top: 10px; }
+.legal-content dl { margin: 0; }
+.legal-content dl > div { margin-top: 16px; }
+.legal-content dt { font-weight: 600; }
+.legal-content dd { margin: 0; }
+.legal-content a { text-decoration: underline; }
+@media (max-width: 767px) {
+  .legal-main { padding-bottom: 48px; }
+  .legal-content { font-size: 16px; }
+}

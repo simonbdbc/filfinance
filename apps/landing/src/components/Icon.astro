@@ -1,0 +1,18 @@
+---
+// Pictogrammes SVG locaux : même trait arrondi que la marque audio existante.
+type Props = { name: "news" | "headphones" | "calendar" | "moon" | "sun" | "menu" | "play" | "arrow"; class?: string };
+const { name, class: className } = Astro.props;
+const paths = {
+  news: "M5 4h16v16H5zM2 7v12a2 2 0 0 0 2 2h15M8 7h4v6H8zM15 7h3M15 10h3M15 13h3M8 16h10",
+  headphones: "M3 14v-3a9 9 0 0 1 18 0v3M3 12h2v9H3a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2ZM21 12h-2v9h2a2 2 0 0 0 2-2v-5a2 2 0 0 0-2-2Z",
+  calendar: "M5 2v5M19 2v5M3 5h18v16H3zM3 10h18M7 14h1M12 14h1M17 14h1M7 18h1M12 18h1",
+  moon: "M20.8 13.1A9 9 0 0 1 10.9 3.2a9 9 0 1 0 9.9 9.9Z",
+  sun: "M12 3V1M12 23v-2M3 12H1M23 12h-2M5.6 5.6 4.2 4.2M19.8 19.8l-1.4-1.4M5.6 18.4l-1.4 1.4M19.8 4.2l-1.4 1.4M17 12a5 5 0 1 1-10 0 5 5 0 0 1 10 0",
+  menu: "M4 6h16M4 12h16M4 18h16",
+  play: "m9 5 11 7-11 7Z",
+  arrow: "M4 12h15M13 6l6 6-6 6",
+};
+---
+<svg class={className} aria-hidden="true" focusable="false" viewBox="0 0 24 24" width="24" height="24" fill={name === "play" ? "currentColor" : "none"} stroke="currentColor" stroke-width={name === "play" ? "0" : "1.6"} stroke-linecap="round" stroke-linejoin="round">
+  <path d={paths[name]} />
+</svg>

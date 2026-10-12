@@ -1,0 +1,35 @@
+{
+  "name": "filfinance-auth",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "check": "npm run build",
+    "dev": "tsx watch src/index.ts",
+    "start": "node dist/index.js",
+    "db:migrate": "node dist/migrate-cli.js",
+    "auth:generate": "auth generate --config src/auth.ts --output db/auth-migrations/0001_better_auth.sql --yes",
+    "auth:migrate": "auth migrate --config src/auth.ts --yes",
+    "test": "tsx --test src/**/*.test.ts",
+    "smoke:integration": "node scripts/smoke_test_better_auth.mjs"
+  },
+  "dependencies": {
+    "@better-auth/expo": "^1.6.1",
+    "better-auth": "^1.6.1",
+    "nodemailer": "10.0.13",
+    "pg": "^8.16.3"
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.14",
+    "@types/nodemailer": "^7.0.11",
+    "@types/pg": "^8.15.4",
+    "auth": "1.6.23",
+    "smtp-server": "3.19.2",
+    "tsx": "^4.20.3",
+    "typescript": "^5.8.3"
+  },
+  "engines": {
+    "node": ">=24.13.1"
+  }
+}

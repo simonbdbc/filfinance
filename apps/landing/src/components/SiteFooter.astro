@@ -1,0 +1,20 @@
+---
+import AudioMark from "./AudioMark.astro";
+import { siteConfig as site } from "../config/site.config";
+import { legalPages } from "../config/legal.config";
+type Props = { homepage?: boolean };
+const { homepage = false } = Astro.props;
+---
+<footer class="site-footer">
+  <div class="container footer-inner">
+    <a class="brand footer-brand" href={homepage ? "#top" : "/"} aria-label={homepage ? "Fil Finance, retour en haut de page" : "Fil Finance, retour à l’accueil"}><AudioMark /><span>{site.wordmark}</span></a>
+    <p class="copyright">{site.copyright}</p>
+    <nav aria-label="Navigation de pied de page"><ul>
+      {site.navigation.map((item) => <li><a href={homepage ? item.target : `/${item.target}`}>{item.label}</a></li>)}
+      <li><a data-cta="login" href={site.externalDestinations.login}>{site.ctas.secondary}</a></li>
+    </ul></nav>
+  </div>
+  <nav class="container legal-navigation" aria-label="Informations légales"><ul>
+    {legalPages.map((page) => <li><a href={page.path} aria-current={Astro.url.pathname === page.path ? "page" : undefined}>{page.label}</a></li>)}
+  </ul></nav>
+</footer>

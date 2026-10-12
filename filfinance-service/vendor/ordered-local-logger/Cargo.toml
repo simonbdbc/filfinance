@@ -1,0 +1,27 @@
+[package]
+name = "ordered-local-logger"
+version = "0.2.0"
+edition = "2024"
+rust-version = "1.95"
+description = "Bounded, ordered local file logging with per-instance context and rotation"
+license = "MIT"
+readme = "README.md"
+exclude = ["target", "docs", "logs"]
+
+[features]
+default = []
+tracing = ["dep:tracing", "dep:tracing-subscriber"]
+
+[dependencies]
+libc = "0.2"
+chrono = { version = "0.4.45", default-features = false, features = ["clock", "std"] }
+tracing = { version = "0.1.44", optional = true }
+tracing-subscriber = { version = "0.3.23", optional = true, default-features = false, features = ["registry", "std"] }
+
+[dev-dependencies]
+tempfile = "3.27.0"
+tokio = { version = "1.52.1", features = ["rt-multi-thread", "macros", "time"] }
+
+[[example]]
+name = "tracing_workflow"
+required-features = ["tracing"]

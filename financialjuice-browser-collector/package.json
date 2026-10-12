@@ -1,0 +1,17 @@
+{
+  "name": "financialjuice-browser-collector",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Collecteur navigateur Playwright separe pour FinancialJuice.",
+  "scripts": {
+    "start": "node src/main.js",
+    "check": "find src test -name '*.js' -print0 | xargs -0 -n1 node --check && node --test"
+  },
+  "dependencies": {
+    "playwright": "1.59.1"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

@@ -1,0 +1,19 @@
+# syntax=docker/dockerfile:1.7
+# Separate opt-in test image. Never used by Compose or deployment jobs.
+FROM rust:1.96.0-slim-bookworm AS toolchain
+RUN apt-get update && apt-get install -y --no-install-recommends libssl-dev pkg-config && rm -rf /var/lib/apt/lists/*
+ENV RUSTUP_TOOLCHAIN=1.96.0 CARGO_BUILD_JOBS=1 CARGO_PROFILE_TEST_DEBUG=0
+FROM toolchain AS build
+WORKDIR /app
+COPY Cargo.toml Cargo.lock rust-toolchain.toml ./
+COPY src ./src
+COPY tests ./tests
+RUN --mount=type=cache,id=filfinance-calendar-diagnostic-registry,target=/usr/local/cargo/registry \
+    --mount=type=cache,id=filfinance-calendar-diagnostic-target,target=/app/target \
+    cargo test --locked --no-run --message-format=json > /tmp/artifacts.jsonl \
+    && apt-get update && apt-get install -y --no-install-recommends python3 \
+    && python3 -c 'import json,shutil; rows=[json.loads(line) for line in open("/tmp/artifacts.jsonl")]; paths=[r["executable"] for r in rows if r.get("reason")=="compiler-artifact" and r.get("profile",{}).get("test") and r.get("executable")]; assert len(paths)==1; shutil.copy2(paths[0],"/calendar-diagnostic")'
+FROM debian:bookworm-slim
+RUN apt-get update && apt-get install -y --no-install-recommends ca-certificates libssl3 && rm -rf /var/lib/apt/lists/*
+COPY --from=build /calendar-diagnostic /calendar-diagnostic
+ENTRYPOINT ["/calendar-diagnostic", "features::calendar_day::native::runtime::diagnostic_probe::native_calendar_ingestion_diagnostic", "--exact", "--ignored", "--nocapture", "--test-threads=1"]

@@ -1,0 +1,123 @@
+@import "tailwindcss";
+@import "uniwind";
+
+/* Charte unique Fil Finance : les hooks JS lisent ces mêmes variables. */
+@layer theme {
+  :root {
+    @variant light {
+      --ff-background: #f1e5d3;
+      --ff-surface: #fbf5eb;
+      --ff-foreground: #382e26;
+      --ff-secondary: #796b5d;
+      --ff-decorative: #7b5e45;
+      --ff-primary: #7b5e45;
+      --ff-primary-text: #fbf5eb;
+      --ff-border: #796b5d;
+      --ff-border-soft: rgba(56, 46, 38, 0.18);
+      --ff-error: #991b1b;
+      --ff-success: #166534;
+      --ff-warning: #713f12;
+      --ff-overlay: rgba(56, 46, 38, 0.48);
+      --ff-shadow: rgba(56, 46, 38, 0.12);
+    }
+    @variant dark {
+      --ff-background: #111827;
+      --ff-surface: #192535;
+      --ff-foreground: #fbf5eb;
+      --ff-secondary: #f1e5d3;
+      --ff-decorative: #8b5e3c;
+      --ff-primary: #714426;
+      --ff-primary-text: #fbf5eb;
+      --ff-border: #f1e5d3;
+      --ff-border-soft: rgba(251, 245, 235, 0.18);
+      --ff-error: #fca5a5;
+      --ff-success: #86efac;
+      --ff-warning: #fde68a;
+      --ff-overlay: rgba(0, 0, 0, 0.64);
+      --ff-shadow: rgba(0, 0, 0, 0.24);
+    }
+  }
+}
+
+@theme static {
+  --color-background: var(--ff-background);
+  --color-surface: var(--ff-surface);
+  --color-foreground: var(--ff-foreground);
+  --color-secondary: var(--ff-secondary);
+  --color-decorative: var(--ff-decorative);
+  --color-primary: var(--ff-primary);
+  --color-primary-text: var(--ff-primary-text);
+  --color-border: var(--ff-border);
+  --color-border-soft: var(--ff-border-soft);
+  --color-error: var(--ff-error);
+  --color-success: var(--ff-success);
+  --color-warning: var(--ff-warning);
+  --color-overlay: var(--ff-overlay);
+  --color-shadow: var(--ff-shadow);
+  --font-sans: Arial, Helvetica, sans-serif;
+  --font-serif: Georgia, "Times New Roman", Times, serif;
+  --font-mono: ui-monospace, Menlo, monospace;
+  --radius-control: 6px;
+  --radius-surface: 8px;
+  --text-xs: 14px;
+  --text-xs--line-height: 20px;
+}
+
+@layer base {
+  html {
+    font-size: 16px;
+    background: var(--ff-background);
+    color-scheme: light;
+  }
+  html.dark {
+    color-scheme: dark;
+  }
+  html,
+  body,
+  #root {
+    min-height: 100%;
+    width: 100%;
+  }
+  body {
+    margin: 0;
+    background: var(--ff-background);
+    font-family: var(--font-sans);
+  }
+  #root {
+    display: flex;
+    flex-direction: column;
+  }
+  :focus-visible,
+  .ff-select:focus-within {
+    outline: 2px solid var(--ff-foreground);
+    outline-offset: 2px;
+  }
+  html {
+    scroll-padding-bottom: 88px;
+  }
+  [tabindex],
+  input,
+  button,
+  select,
+  a {
+    scroll-margin-block: 88px;
+  }
+  a {
+    color: inherit;
+  }
+  [role="button"][data-hover="true"] {
+    box-shadow: inset 0 0 0 1px var(--ff-foreground);
+  }
+  input,
+  textarea,
+  select,
+  button {
+    font: inherit;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    * {
+      animation-duration: 0.01ms !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}

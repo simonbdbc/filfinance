@@ -1,0 +1,34 @@
+# Rename this file to filfinance-api.yaml only after api.filfinance.fr resolves
+# to the OVH VPS. Traefik otherwise starts ACME issuance immediately.
+#
+# This file-provider route deliberately targets the Nginx gateway rather than
+# the Auth or Rust containers. It keeps their routing and the WebSocket proxy
+# policy in deploy/nginx/filfinance-gateway.conf authoritative.
+http:
+  routers:
+    filfinance-api:
+      rule: "Host(`api.filfinance.fr`)"
+      entryPoints:
+        - websecure
+      middlewares:
+        - filfinance-security-headers
+      service: filfinance-gateway
+      tls:
+        certResolver: lets_encrypt
+
+  services:
+    filfinance-gateway:
+      loadBalancer:
+        passHostHeader: true
+        servers:
+          - url: http://filfinance-gateway:8080
+
+  middlewares:
+    filfinance-security-headers:
+      headers:
+        contentTypeNosniff: true
+        frameDeny: true
+        referrerPolicy: no-referrer
+        stsSeconds: 31536000
+        stsIncludeSubdomains: false
+        stsPreload: false

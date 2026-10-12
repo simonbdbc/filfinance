@@ -1,0 +1,29 @@
+{
+  "$schema": "https://json.schemastore.org/wrangler.json",
+  "name": "filfinance-live-edge",
+  "main": "src/index.js",
+  "compatibility_date": "2026-05-03",
+  "observability": {
+    "enabled": true
+  },
+  "vars": {
+    "LIVE_OBJECT_NAME": "filfinance-live",
+    "FILFINANCE_HLS_PROXY_ENABLED": "false",
+    "FILFINANCE_HLS_ORIGIN_BASE_URL": "https://api.filfinance.fr",
+    "FILFINANCE_HLS_PLAYLIST_CACHE_TTL_SECONDS": "2"
+  },
+  "durable_objects": {
+    "bindings": [
+      {
+        "name": "LIVE_METADATA",
+        "class_name": "LiveMetadataDurableObject"
+      }
+    ]
+  },
+  "migrations": [
+    {
+      "tag": "v1",
+      "new_sqlite_classes": ["LiveMetadataDurableObject"]
+    }
+  ]
+}

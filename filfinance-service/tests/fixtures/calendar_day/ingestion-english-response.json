@@ -1,0 +1,23 @@
+{
+  "items": [
+    {
+      "eventTime": "2026-06-15T12:30:00Z",
+      "sourceTitle": "Retail Sales m/m",
+      "translatedTitle": "Retail Sales m/m",
+      "ttsText": "Retail Sales m/m",
+      "sourceImportance": "high",
+      "aiImportance": "high",
+      "finalImportance": "high",
+      "category": "macro",
+      "reasoning": "Actual above forecast",
+      "confidence": 0.9,
+      "sources": [
+        {
+          "source": "forex_factory_export",
+          "externalId": "retail-sales-2026-06-15",
+          "raw": {}
+        }
+      ]
+    }
+  ]
+}

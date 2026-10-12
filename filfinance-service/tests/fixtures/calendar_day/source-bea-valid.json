@@ -1,0 +1,7 @@
+{
+  "localDay": "2026-06-15",
+  "source": "bea_json",
+  "url": "https://apps.bea.gov/API/signup/release_dates.json",
+  "status": 200,
+  "body": "<html><body>15 juin 2026 - Decision de taux de la BCE</body></html>"
+}

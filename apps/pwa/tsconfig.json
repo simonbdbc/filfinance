@@ -1,0 +1,35 @@
+{
+  "extends": "expo/tsconfig.base",
+  "compilerOptions": {
+    "strict": true,
+    "baseUrl": ".",
+    "paths": {
+      "@application": [
+        "src/application/index.ts"
+      ],
+      "@application/*": [
+        "src/application/*"
+      ],
+      "@features/*": [
+        "src/features/*"
+      ],
+      "@shared/*": [
+        "src/shared/*"
+      ]
+    }
+  },
+  "include": [
+    "App.tsx",
+    "app/**/*.ts",
+    "app/**/*.tsx",
+    "src/**/*.ts",
+    "src/**/*.tsx",
+    "uniwind-types.d.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist",
+    "web-build",
+    "dist-web-smoke"
+  ]
+}

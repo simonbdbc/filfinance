@@ -1,0 +1,33 @@
+---
+import AudioMark from "./AudioMark.astro";
+import Icon from "./Icon.astro";
+import { siteConfig as site } from "../config/site.config";
+type Props = { homepage?: boolean };
+const { homepage = false } = Astro.props;
+const target = (anchor: string) => homepage ? anchor : `/${anchor}`;
+---
+<header class="site-header" id="top">
+  <div class="container header-inner">
+    <a class="brand" href={homepage ? "#top" : "/"} aria-label={homepage ? "Fil Finance, retour en haut de page" : "Fil Finance, retour à l’accueil"}>
+      <AudioMark /><span>{site.wordmark}</span>
+    </a>
+    <nav class="desktop-nav" aria-label="Navigation principale">
+      <ul>{site.navigation.map((item) => <li><a href={target(item.target)}>{item.label}</a></li>)}</ul>
+    </nav>
+    <div class="header-actions">
+      <a class="button button-outline header-login" data-cta="login" href={site.externalDestinations.login}>{site.ctas.secondary}</a>
+      <div class="theme-slot">
+        <button id="theme-toggle" class="theme-toggle" type="button" aria-label="Thème sombre" title="Thème sombre" aria-pressed="false" hidden>
+          <Icon name="moon" class="theme-moon" /><Icon name="sun" class="theme-sun" />
+        </button>
+      </div>
+      <details class="mobile-menu">
+        <summary aria-label="Menu de navigation"><Icon name="menu" /></summary>
+        <nav aria-label="Navigation mobile"><ul>
+          {site.navigation.map((item) => <li><a href={target(item.target)}>{item.label}</a></li>)}
+          <li><a data-cta="login" href={site.externalDestinations.login}>{site.ctas.secondary}</a></li>
+        </ul></nav>
+      </details>
+    </div>
+  </div>
+</header>

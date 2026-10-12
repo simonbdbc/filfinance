@@ -1,0 +1,48 @@
+services:
+  filfinance-auth:
+    ports:
+      - "${FILFINANCE_AUTH_PORT:-3000}:3000"
+
+  filfinance-service:
+    env_file:
+      - ${FILFINANCE_ENV_FILE:-.env.local}
+    environment:
+      FILFINANCE_ENV_FILE: ""
+    ports:
+      - "${FILFINANCE_BACKEND_PORT:-8088}:8088"
+
+  financialjuice-browser-collector:
+    volumes:
+      - ${NEWS_FINANCIAL_JUICE_BROWSER_PROFILE_DIR:-${HOME}/.filfinance/financialjuice-browser-profile}:/app/data/financialjuice-browser-profile
+
+  filfinance-client:
+    container_name: filfinance_client
+    build:
+      context: ./apps/pwa
+      dockerfile: Dockerfile
+      args:
+        EXPO_PUBLIC_FILFINANCE_WS_URL: ${EXPO_PUBLIC_FILFINANCE_WS_URL:-ws://localhost:8088/ws/news}
+        EXPO_PUBLIC_FILFINANCE_EDGE_WS_URL: ${EXPO_PUBLIC_FILFINANCE_EDGE_WS_URL:-}
+        EXPO_PUBLIC_FILFINANCE_HLS_BASE_URL: ${EXPO_PUBLIC_FILFINANCE_HLS_BASE_URL:-}
+        EXPO_PUBLIC_FILFINANCE_PWA_URL: ${EXPO_PUBLIC_FILFINANCE_PWA_URL:-http://localhost:8052}
+        EXPO_PUBLIC_API_URL: ${EXPO_PUBLIC_API_URL:-http://localhost:3000}
+        EXPO_PUBLIC_BETTER_AUTH_URL: ${EXPO_PUBLIC_BETTER_AUTH_URL:-http://localhost:3000}
+        EXPO_PUBLIC_LANDING_ORIGIN: ${EXPO_PUBLIC_LANDING_ORIGIN:-http://localhost:4321}
+    restart: unless-stopped
+    depends_on:
+      filfinance-service:
+        condition: service_healthy
+      filfinance-auth:
+        condition: service_healthy
+    environment:
+      EXPO_PUBLIC_FILFINANCE_WS_URL: ${EXPO_PUBLIC_FILFINANCE_WS_URL:-ws://localhost:8088/ws/news}
+      EXPO_PUBLIC_FILFINANCE_EDGE_WS_URL: ${EXPO_PUBLIC_FILFINANCE_EDGE_WS_URL:-}
+      EXPO_PUBLIC_FILFINANCE_HLS_BASE_URL: ${EXPO_PUBLIC_FILFINANCE_HLS_BASE_URL:-}
+      EXPO_PUBLIC_FILFINANCE_PWA_URL: ${EXPO_PUBLIC_FILFINANCE_PWA_URL:-http://localhost:8052}
+      EXPO_PUBLIC_API_URL: ${EXPO_PUBLIC_API_URL:-http://localhost:3000}
+      EXPO_PUBLIC_BETTER_AUTH_URL: ${EXPO_PUBLIC_BETTER_AUTH_URL:-http://localhost:3000}
+      EXPO_PUBLIC_LANDING_ORIGIN: ${EXPO_PUBLIC_LANDING_ORIGIN:-http://localhost:4321}
+    networks:
+      - filfinance_internal
+    ports:
+      - "${FILFINANCE_FRONTEND_PORT:-8052}:8052"
