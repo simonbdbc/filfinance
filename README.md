@@ -13,13 +13,13 @@
 ## Statut et provenance
 
 Le développement reste sur [GitLab](https://gitlab.com/simonbdbc/filfinance),
-actuellement privé. La future destination GitHub recevra un export filtré avec
-historique neuf ; aucune publication ou synchronisation n'est attestée ici.
+actuellement privé. Le dépôt [GitHub public](https://github.com/simonbdbc/filfinance)
+reçoit un export filtré avec un historique public séparé.
 Les sources de calendrier/audio et les modèles ont leurs propres droits : les
 accès techniques ne donnent pas une autorisation de redistribution.
 
 ```bash
-git clone https://gitlab.com/simonbdbc/filfinance.git
+git clone https://github.com/simonbdbc/filfinance.git
 cd filfinance
 ```
 
