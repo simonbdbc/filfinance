@@ -8,7 +8,7 @@ const origin = "http://127.0.0.1:8052";
 const output = path.resolve(
   __dirname,
   "../../../..",
-  "docs/design/pwa/recette/2026-09-16",
+  "apps/pwa/test-results/public-qa",
 );
 const target = process.argv.find(arg => arg.startsWith("--route="))?.slice(8);
 const resultPrefix = target ? "targeted-" : "";

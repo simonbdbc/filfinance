@@ -13,7 +13,7 @@
     "build": "npm run prepare:assets && ASTRO_TELEMETRY_DISABLED=1 astro build",
     "preview": "ASTRO_TELEMETRY_DISABLED=1 astro preview",
     "typecheck": "ASTRO_TELEMETRY_DISABLED=1 astro check",
-    "validate": "node scripts/validate-production-build.mjs",
+    "validate": "node scripts/validate-static-build.mjs",
     "check": "npm run typecheck && npm test && npm run build && npm run test:legal && npm run validate",
     "lighthouse:mobile": "lhci autorun --config=.lighthouserc.browser-qa.cjs",
     "lighthouse:desktop": "lhci autorun --config=.lighthouserc.desktop.cjs",

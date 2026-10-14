@@ -8,9 +8,6 @@
     "npm": ">=11.8.0 <12"
   },
   "scripts": {
-    "check": "node --check src/protocol.js && node --check src/hls-proxy.js && node --check src/index.js && node --check scripts/load-test-live.js && node --test",
-    "dev": "npx wrangler dev",
-    "deploy": "npx wrangler deploy",
-    "load-test:live": "node scripts/load-test-live.js"
+    "check": "node --check src/protocol.js && node --check src/hls-proxy.js && node --check src/index.js && node --test"
   }
 }

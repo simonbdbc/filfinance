@@ -66,8 +66,7 @@ origine HTTPS presente dans `BETTER_AUTH_TRUSTED_ORIGINS`.
 
 En production, l'envoi Better Auth utilise uniquement Brevo en STARTTLS sur le
 port 587. `SMTP_USER` et `SMTP_PASSWORD` ne doivent exister que dans le fichier
-serveur prive ; le controle `../scripts/check_no_public_smtp_secrets.sh` interdit
-leur exposition via les prefixes d'environnement publics.
+serveur privé ; leur exposition via les préfixes d’environnement publics reste interdite.
 
 L'inscription demande explicitement l'envoi du lien apres creation et n'annonce le
 succes qu'apres acceptation SMTP. Les callbacks d'activation et de reinitialisation
@@ -79,11 +78,5 @@ En dev, `APP_WEB_URL` et la seconde origine de
 backend autorise uniquement sa propre PWA; ne pas reunir les origines prod et dev
 dans une meme configuration.
 
-Le preflight de deploiement recoit l'origine PWA dev explicitement, meme pour une
-validation prod, afin de verifier la cible et d'interdire les origines croisees :
 
-```bash
-: "${FILFINANCE_DEV_PWA_URL:?Renseigner l'URL PWA dev reelle}"
-bash ../scripts/check_better_auth_env.sh \
-  ../.env.server.prod prod "$FILFINANCE_DEV_PWA_URL"
-```
+Les scripts de production et préflights distants restent dans GitLab privé.

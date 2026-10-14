@@ -17,21 +17,9 @@ Worker Cloudflare de metadata live pour `EPIC-018`.
 - `FILFINANCE_HLS_ORIGIN_BASE_URL`: base HTTPS de l'origin HLS Rust, par defaut `https://api.filfinance.fr`.
 - `FILFINANCE_HLS_PLAYLIST_CACHE_TTL_SECONDS`: TTL tres court des playlists HLS. `0` ou vide desactive; `1` ou `2` active; le code limite a `5`.
 
-## Secrets
+## Configuration locale
 
-Le secret de publication ne doit pas etre versionne:
-
-```bash
-npx wrangler secret put FILFINANCE_EDGE_PUBLISH_SECRET
-npx wrangler secret put FILFINANCE_EDGE_TICKET_SECRET
-```
-
-`FILFINANCE_EDGE_TICKET_SECRET` doit avoir la meme valeur que `NEWS_EDGE_TICKET_SECRET` cote backend.
-`FILFINANCE_EDGE_PUBLISH_SECRET` doit avoir la meme valeur que `NEWS_EDGE_PUBLISH_SECRET` cote backend.
-Les deux secrets doivent contenir au moins 32 caracteres.
-
-Le Worker et son Durable Object sont réservés à la production Cloudflare. Le pilote DEV Bunny
-utilise le WebSocket Rust/Redis et ne déploie ni Worker, ni secrets Cloudflare.
+Les configurations et commandes de publication/cloud/secrets sont conservées dans GitLab privé. Les tests utilisent uniquement des fixtures et fonctions locales ; aucune connexion au Worker distant.
 
 ## Publication backend
 
@@ -90,63 +78,3 @@ Le header `X-FilFinance-HLS-Proxy-Cache` permet de verifier le comportement:
 npm run check
 ```
 
-## Load test metadata
-
-Le script ouvre des clients WebSocket, publie des messages metadata et mesure les livraisons:
-
-```bash
-FILFINANCE_EDGE_WS_URL="wss://live.filfinance.fr/ws/live" \
-FILFINANCE_EDGE_LOAD_TEST_TICKET="<edge-live-ticket>" \
-FILFINANCE_EDGE_PUBLISH_URL="https://live.filfinance.fr/publish/live" \
-FILFINANCE_EDGE_PUBLISH_SECRET="<publish-secret>" \
-FILFINANCE_EDGE_LOAD_TEST_TIERS=100,500,1000 \
-npm run load-test:live
-```
-
-Sans `FILFINANCE_EDGE_LOAD_TEST_TIERS`, le script execute un seul palier avec
-`FILFINANCE_EDGE_LOAD_TEST_CLIENTS`.
-
-Le rapport JSON contient:
-
-- clients connectes, echecs, fermetures inattendues;
-- types de messages publies et recus;
-- livraisons attendues/recues/manquantes;
-- latences p50/p95/p99/max;
-- verification du snapshot `hello`;
-- verification des sources dans le `heartbeat`.
-
-Les messages publies couvrent `translated_news_item`, `audio_ready`, `audio_failed`,
-`audio_finalized`, `system_notice` et `source_status`.
-
-## Load test HLS
-
-Le proxy HLS se teste depuis la racine du repo applicatif avec
-`scripts/load_backend_ws_hls.mjs`, uniquement sur une cible media non Cloudflare ou
-explicitement approuvee. Les bases `filfinance.fr`, `workers.dev`,
-`cloudflarestream.com` et `videodelivery.net` sont bloquees par defaut.
-
-Exemple replay HLS seul vers une cible DNS-only approuvee:
-
-```bash
-FILFINANCE_LOAD_TEST_HLS_BASE_URL="https://media-dns-only.example.test" \
-FILFINANCE_LOAD_TEST_TIERS=1000 \
-FILFINANCE_LOAD_TEST_DURATION_MS=60000 \
-FILFINANCE_LOAD_TEST_SKIP_WS=true \
-node scripts/load_backend_ws_hls.mjs
-```
-
-Run historique du 11 mai 2026 a 1000 auditeurs HLS replay, a ne pas relancer via
-Cloudflare CDN standard:
-
-- `ok=true`;
-- `playlist.failures=0`, p95 `42.61ms`, p99 `90.03ms`;
-- `segment.failures=0`, p95 `34.24ms`, p99 `47.23ms`;
-- `ticket.failures=0`;
-- `PLAYLIST_HIT=38974`, `PLAYLIST_MISS=1093`;
-- `HIT=40064`, `MISS=3` pour les segments.
-
-## Deploiement
-
-```bash
-npx wrangler deploy
-```

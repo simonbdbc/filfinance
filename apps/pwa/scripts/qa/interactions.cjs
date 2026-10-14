@@ -7,7 +7,7 @@ const origin = "http://127.0.0.1:8052",
   output = process.env.QA_OUTPUT_DIR || path.resolve(
     __dirname,
     "../../../..",
-    "docs/design/pwa/recette/2026-09-16",
+    "apps/pwa/test-results/public-qa",
   );
 (async () => {
   const browser = await puppeteer.launch({

@@ -135,14 +135,14 @@ Points explicitement restants hors refonte:
 
 - feuille de route partagee: [../docs/ROADMAP.md](../docs/ROADMAP.md)
 - cadrage audio/traduction: [../docs/TOPIC-001-flux-audio-francais-news.md](../docs/TOPIC-001-flux-audio-francais-news.md)
-- refonte acquisition FinancialJuice: [../docs/epics/EPIC-011-refonte-acquisition-financialjuice.md](../docs/epics/EPIC-011-refonte-acquisition-financialjuice.md)
-- niveau FinancialJuice des news: [../docs/epics/EPIC-015-financialjuice-news-level.md](../docs/epics/EPIC-015-financialjuice-news-level.md)
-- auth Better Auth + PostgreSQL: [../docs/MIGRATION-BETTER-AUTH-POSTGRES.md](../docs/MIGRATION-BETTER-AUTH-POSTGRES.md)
+- refonte acquisition FinancialJuice: ../docs/epics/EPIC-011-refonte-acquisition-financialjuice.md (référence interne non exportée)
+- niveau FinancialJuice des news: ../docs/epics/EPIC-015-financialjuice-news-level.md (référence interne non exportée)
+- auth Better Auth + PostgreSQL: ../docs/MIGRATION-BETTER-AUTH-POSTGRES.md (référence interne non exportée)
 - runbook auth: [../docs/AUTH-RUNBOOK.md](../docs/AUTH-RUNBOOK.md)
 - standard de commentaires Rust pedagogiques: [../docs/RUST-COMMENTING-STANDARD.md](../docs/RUST-COMMENTING-STANDARD.md)
 - checklist de review Rust pedagogique: [../docs/RUST-REVIEW-CHECKLIST.md](../docs/RUST-REVIEW-CHECKLIST.md)
-- audit de couverture Rust: [../docs/tickets/NEWS-047-audit-couverture-rust.md](../docs/tickets/NEWS-047-audit-couverture-rust.md)
-- option workspace audio/traduction non prioritaire: [../docs/tickets/NEWS-153-option-workspace-audio-translation.md](../docs/tickets/NEWS-153-option-workspace-audio-translation.md)
+- audit de couverture Rust: ../docs/tickets/NEWS-047-audit-couverture-rust.md (référence interne non exportée)
+- option workspace audio/traduction non prioritaire: ../docs/tickets/NEWS-153-option-workspace-audio-translation.md (référence interne non exportée)
 
 ## Standard de developpement Rust
 

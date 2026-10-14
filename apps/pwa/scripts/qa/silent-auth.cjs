@@ -9,7 +9,7 @@ const origin = "http://127.0.0.1:8059",
     path.resolve(
       __dirname,
       "../../../..",
-      "docs/design/pwa/recette/2026-09-17-auth",
+      "apps/pwa/test-results/public-qa",
     );
 (async () => {
   const mediaDir = fs.mkdtempSync(
